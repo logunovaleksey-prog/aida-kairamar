@@ -362,6 +362,23 @@ function buildSprites(){
   def('gazebo',mk(104,62,({r,p})=>{p([0,22,14,8,90,8,104,22],'#4f3b38');r(0,22,104,3,'#f2f2f2');r(4,25,96,32,'#2c2a28');r(60,30,18,27,'#7a3a2a');for(let y=33;y<57;y+=4)r(60,y,18,1,'#5f2c20');r(64,26,10,5,'#3a3a3a');r(66,30,6,4,'#ff8a3a');
     for(const px of[4,30,56,82,98])r(px,25,3,32,'#f2f2f2');for(const[a,b2] of[[7,30],[33,56],[85,98]]){const ctx=null;}r(4,44,96,2,'#f2f2f2');for(const[a,b2]of[[7,30],[33,56],[85,98]]){for(let i=0;i<=b2-a;i++){r(a+i,44+Math.round(i*12/(b2-a)),1,1,'#f2f2f2');r(a+i,56-Math.round(i*12/(b2-a)),1,1,'#f2f2f2')}}r(0,57,104,5,'#8a8f93');r(6,48,24,3,'#7a5232');r(8,51,2,8,'#5a3a22');r(26,51,2,8,'#5a3a22')}),5600);
   def('shed',mk(44,42,({r,p})=>{p([0,8,44,4,44,10,0,12],'#5b5e61');r(2,12,40,28,'#c2c5c8');for(let i=2;i<42;i+=6)r(i,12,1,28,'#a8acb0');r(20,12,1,28,'#7d8286');r(0,40,44,2,'#8a8f93')}),2800);
+  /* --- МКАД, ДПС, препятствия --- */
+  def('noiseWall',mk(64,26,({r})=>{r(0,4,64,22,'#3f7f8f');for(let i=0;i<64;i+=4)r(i,4,1,22,'#36707e');r(0,4,64,2,'#5a9aa8');r(0,14,64,1,'#2f6472');for(let i=0;i<64;i+=16)r(i,0,3,26,'#8d939a')}),4400);
+  def('mkadGantry',mk(240,74,({r,t})=>{r(6,10,6,64,'#8d939a');r(228,10,6,64,'#8d939a');r(6,10,228,4,'#8d939a');for(let i=10;i<230;i+=8)r(i,14,1,4,'#8d939a');
+    r(20,18,96,30,'#fff');r(22,20,92,26,'#1f5fbf');t('МКАД',68,34,16,'#fff',PF);
+    r(124,18,96,30,'#fff');r(126,20,92,26,'#1f5fbf');t('Аксиньино →',172,34,12,'#fff',PF)}),9800);
+  def('signMkad',mk(96,52,({r,t})=>{r(0,0,96,28,'#fff');r(2,2,92,24,'#1f5fbf');t('МКАД',48,15,15,'#fff',PF);r(22,28,3,24,'#8d939a');r(71,28,3,24,'#8d939a')}),2600);
+  def('signM12',mk(124,52,({r,t})=>{r(0,0,124,28,'#fff');r(2,2,120,24,'#1e7a3a');r(6,6,28,16,'#fff');r(7,7,26,14,'#d0202a');t('М-12',20,15,9,'#fff',PF);t('МОСКВА',80,15,14,'#fff',PF);r(28,28,3,24,'#8d939a');r(93,28,3,24,'#8d939a')}),3200);
+  def('overpass',mk(240,70,({r})=>{r(0,10,240,16,'#a8a69e');r(0,10,240,2,'#c9c7bf');r(0,24,240,3,'#7d7b74');for(let i=0;i<240;i+=6)r(i,4,1,6,'#6b7176');r(0,4,240,1,'#6b7176');r(0,26,22,44,'#9c9a92');r(218,26,22,44,'#9c9a92');r(18,26,4,44,'#7d7b74');r(218,26,4,44,'#7d7b74')}),10400);
+  const lim=(n)=>mk(26,60,({x,r,o,t})=>{r(12,22,2,38,'#8d939a');o(13,12,12,12,'#fff');o(13,12,11,11,'#d0202a');o(13,12,8,8,'#fff');t(String(n),13,13,9,'#111',PF)});
+  def('lim90',lim(90),1000);def('lim100',lim(100),1000);
+  def('dps',mk(110,48,({r,o,p,t})=>{o(55,46,52,2,'rgba(0,0,0,.3)');
+    p([30,40,30,30,38,28,46,20,74,20,84,28,104,30,106,40],'#f2f4f6');r(30,32,76,4,'#1f5fbf');t('ДПС',70,38,7,'#1f5fbf',PF);p([48,28,52,22,72,22,78,28],'#1c2734');r(56,17,16,3,'#1f5fbf');r(56,17,8,3,'#e0262b');
+    o(42,41,6,6,'#151515');o(42,41,3.5,3.5,'#c3c8ce');o(94,41,6,6,'#151515');o(94,41,3.5,3.5,'#c3c8ce');
+    r(10,22,8,18,'#3d4a5c');r(9,24,10,10,'#b6e021');r(9,27,10,1,'#e8e8e8');r(11,40,3,7,'#2a3040');r(15,40,3,7,'#2a3040');o(14,17,4,4,'#e3b08f');r(9,12,10,3,'#3d4a5c');r(8,14,12,1,'#1a1a1a');r(18,25,8,3,'#3d4a5c');r(24,23,5,5,'#222');r(5,26,4,1,'#111');r(3,26,2,1,'#fff')}),3800);
+  def('pothole',mk(40,12,({o})=>{o(20,6,19,5.5,'#4a3a26');o(20,6,16,4.2,'#2a2016');o(18,5,8,2,'#5d6a76')}),1000);
+  def('geese',mk(48,24,({o,p,r})=>{for(const[gx,gy]of[[10,14],[24,12],[38,15]]){o(gx,gy+3,7,4,'#f4f4f0');o(gx-1,gy+4,5,2,'#d9d9d2');r(gx+4,gy-6,2,8,'#f4f4f0');o(gx+5,gy-6,2.5,2,'#f4f4f0');p([gx+7,gy-7,gx+10,gy-6,gx+7,gy-5],'#f08a1a');r(gx-2,gy+7,1,3,'#f08a1a');r(gx+2,gy+7,1,3,'#f08a1a')}}),1500);
+  def('goat',mk(32,26,({o,r,p})=>{o(16,13,10,6,'#f2f0ea');r(9,17,2,8,'#e2ded4');r(21,17,2,8,'#e2ded4');o(27,8,4,4,'#f2f0ea');p([25,5,23,0,26,4],'#9a8a70');p([28,5,30,0,29,5],'#9a8a70');r(28,11,2,3,'#d8d2c4');o(28,7,0.8,0.8,'#222')}),1200);
   /* --- машины --- */
   for(const c of CARS){const P=MODELS[c.id];c.side=mk(P.w,P.h,d=>sideCar(d,P,c));c.rear=mk(64,{haval:50,cx9:44,m6:36,opel:36}[c.id],d=>rearCar(d,c.id,c));}
   for(const t of TRAFFIC){t.rear=mk(48,t.tall?36:30,d=>drawRear(d,t.tall?'suv':'sedan',t,t.tail));}
@@ -398,7 +415,8 @@ const TRAFFIC=[
   {name:'жигули',body:'#b8281f',hi:'#d64a3e',dark:'#7a1a14',tail:'lada',tall:false},
   {name:'маршрутка',body:'#f2c418',hi:'#ffe066',dark:'#b58f0a',tail:'van',tall:true},
   {name:'хэтчбек',body:'#9aa3ab',hi:'#c3cad0',dark:'#6b737a',tail:'opel',tall:false},
-  {name:'кроссовер',body:'#2e4f7a',hi:'#4a72a6',dark:'#1c3150',tail:'strip',tall:true}
+  {name:'кроссовер',body:'#2e4f7a',hi:'#4a72a6',dark:'#1c3150',tail:'strip',tall:true},
+  {name:'фура',body:'#dfe3e7',hi:'#ffffff',dark:'#a9aeb3',tail:'van',tall:true}
 ];
 const CITIES=[
   {id:'cheb',name:'ЧЕБОКСАРЫ',desc:'Залив и Мать-Покровительница',seed:11,gr:['#7aab52','#74a44c'],kerb:['#e8e8e8','#c0392b'],stele:'stCheb',endS:'endCheb',icon:'statue',
@@ -410,10 +428,15 @@ const CITIES=[
   {id:'pod',name:'ПОДОЛЬСК',desc:'Улица Веллинга, 7',seed:51,gr:['#a3a097','#9b988f'],kerb:['#f0f0f0','#151515'],stele:'stPod',endS:'endPod',icon:'podTower',
    secs:[[20,140,20,0,0],[30,80,30,3,0],[30,120,30,0,10],[40,80,40,-4,-10],[30,160,30,0,0],[40,100,40,3,0],[30,140,30,0,0]]}
 ];
-const ZP={city:{lanes:3,wf:1.3},out:{lanes:2,wf:1.05},country:{lanes:2,wf:1},turn:{lanes:2,wf:0.9},dirt:{lanes:1,wf:0.62},end:{lanes:1,wf:0.62}};
+const ZP={city:{lanes:3,wf:1.3},out:{lanes:2,wf:1.05},hwy:{lanes:4,wf:1.75},country:{lanes:2,wf:1},turn:{lanes:2,wf:0.9},dirt:{lanes:1,wf:0.62},end:{lanes:1,wf:0.62}};
 
 /* ===================== трасса ===================== */
 const SEG=200,ROADW=2000,DRAW=150,CD=1/Math.tan(50*Math.PI/180),MAX=SEG*60;
+const HWY_SECS=[[20,80,20,0,0],[40,80,40,-2,6],[30,60,30,0,-6]];
+const COUNTRY_SECS=[[30,100,30,0,0],[50,100,50,2,14],[40,100,40,0,-14],[50,80,50,-3,10],[50,100,50,3,8],[40,80,40,0,-8],[30,240,30,0,0]];
+const DIFF=[{name:'Спокойно до дачи',bot:0.88,city:3,hwy:1,country:2,lead:3500},{name:'Обычно',bot:1,city:4,hwy:2,country:3,lead:4500},{name:'Опаздываем на шашлык',bot:1.06,city:6,hwy:3,country:4,lead:6500}];
+let diffIdx=1;try{const v=localStorage.getItem('aida_diff');if(v==='0'||v==='1'||v==='2')diffIdx=+v}catch(e){}
+let hwyStart=0,countryStart=0,potholes=[],dpsList=[],geese=null,fines=0,lastPZ=0;
 let segs=[],trackLen=0,finishZ=0,finishIdx=0,dirtStart=0,cityEnd=0,curZone='city';
 const easeIn=(a,b,p)=>a+(b-a)*p*p, easeIO=(a,b,p)=>a+(b-a)*((-Math.cos(p*Math.PI)/2)+0.5);
 const lastY=()=>segs.length?segs[segs.length-1].p2.wy:0;
@@ -427,10 +450,11 @@ function buildTrack(ci){
   addRoad(0,30,0,0,0);
   for(const s of C.secs)addRoad(...s);
   cityEnd=segs.length;
-  curZone='out';addRoad(20,90,20,1,4);
-  const countryStart=segs.length;
+  curZone='out';addRoad(20,60,20,1,4);
+  hwyStart=segs.length;curZone='hwy';for(const s of HWY_SECS)addRoad(...s);
+  countryStart=segs.length;
   curZone='country';
-  for(const s of[[30,120,30,0,0],[50,100,50,2,14],[40,120,40,0,-14],[50,80,50,-3,10],[40,160,40,0,-10],[50,100,50,3,18],[40,120,40,0,-18],[30,240,30,0,0]])addRoad(...s);
+  for(const s of COUNTRY_SECS)addRoad(...s);
   const turnStart=segs.length;
   curZone='turn';addRoad(14,24,14,-7,0);
   dirtStart=segs.length;
@@ -443,9 +467,10 @@ function buildTrack(ci){
   const raw=segs.map(s=>ZP[s.zone].wf);
   for(const s of segs){let a=0,n=0;for(let k=-25;k<=25;k++){const j=s.i+k;if(j>=0&&j<segs.length){a+=raw[j];n++}}s.wf=a/n;s.lanes=ZP[s.zone].lanes}
   for(const s of segs){s.w1=s.wf;s.w2=(segs[s.i+1]||s).wf;s.alt=Math.floor(s.i/3)%2;
-    s.bg=s.zone==='city'?C.id:'country';
+    s.bg=s.zone==='city'?C.id:s.zone==='hwy'?'msk':'country';
     const z=s.zone;
     if(z==='city'){s.road=['#606267','#5c5e63'];s.kerb=C.kerb;s.gl=C.gr;s.gr=C.gr;s.lane='#e6e6e6';s.haze='#c9dceb'}
+    else if(z==='hwy'){s.road=['#54565b','#54565b'];s.kerb=['#c4c3bc','#a9a8a1'];s.gl=['#6aa04a','#6aa04a'];s.gr=s.gl;s.lane='#ececec';s.edge=true;s.haze='#cfe2ee'}
     else if(z==='out'||z==='country'||z==='turn'){s.road=['#65676b','#616367'];s.kerb=['#8d8a80','#8d8a80'];s.gl=['#6aa04a','#649a45'];s.gr=s.gl;s.lane='#e8e8e8';s.edge=true;s.haze='#cfe2ee'}
     else if(z==='dirt'){s.road=['#8a6a45','#8a6a45'];s.kerb=['#5c9a3e','#5c9a3e'];s.gl=['#5c9a3e','#57943a'];s.gr=s.gl;s.lane=null;s.mid=true;s.haze='#d3e4ea'}
     else {s.road=['#6fae45','#6aa841'];s.kerb=s.road;s.gl=['#6fae45','#6aa841'];s.gr=s.gl;s.lane=null;s.haze='#d3e4ea'}
@@ -509,6 +534,22 @@ function buildTrack(ci){
   for(let i=bus-4;i<bus+5;i++)segs[i].zig=true;
   put(turnStart-60,'signDacha',1.2);put(turnStart-25,'signDacha',1.2);
   for(let i=turnStart;i<dirtStart;i+=6)put(i,'tree',(rnd()<.5?-1:1)*rr(1.5,3));
+  /* ---- МКАД ---- */
+  const hwyEnd=countryStart;
+  if(C.id==='cheb')put(hwyStart+4,'signM12',1.25);
+  put(hwyStart+24,'signMkad',1.25);put(hwyStart+70,'mkadGantry',0,'c');put(hwyStart+150,'lim100',1.2);put(hwyStart+230,'overpass',0,'c');
+  for(let i=hwyStart+30;i<hwyEnd-20;i+=2){if(i<hwyStart+235||i>hwyStart+330)put(i,'noiseWall',1.22);if((i/60|0)%2)put(i+1,'noiseWall',-1.22)}
+  for(let i=hwyStart+10;i<hwyEnd;i+=26){put(i,'lampL',-1.14);put(i+13,'lampR',1.14)}
+  for(let i=hwyStart;i<hwyEnd;i+=7)put(i,'tree',(rnd()<.5?-1:1)*rr(1.9,3.5));
+  put(hwyStart+310,'dps',1.08);
+  /* ---- ДПС за городом, ямы, гуси ---- */
+  put(countryStart+440,'lim90',1.2);put(countryStart+520,'dps',1.18);
+  dpsList=[{z:(hwyStart+310)*SEG,lim:100,done:false},{z:(countryStart+520)*SEG,lim:90,done:false}];
+  potholes=[];for(const [i,off] of [[countryStart+700,-0.45],[countryStart+1010,0.5],[turnStart-80,-0.4]])potholes.push({z:i*SEG,off});
+  for(let k=0;k<7;k++){const i=dirtStart+18+k*22+Math.floor(rnd()*8);potholes.push({z:i*SEG,off:rr(-0.55,0.55)})}
+  for(const ph of potholes)put(Math.floor(ph.z/SEG),'pothole',ph.off,'c');
+  geese={z:(bus+38)*SEG,x:-1.9,dir:1,on:false,hit:false,quack:0};
+  put(dirtStart+60,'goat',2.2);put(dirtStart+130,'goat',-2.4);
   /* ---- грунтовка и дача ---- */
   const fs=['profGrey','profGreen','profBrown'];
   for(let i=dirtStart+14;i<finishIdx-10;i+=5){put(i,fs[(i/40|0)%3],-1.35);put(i+2,fs[((i/40|0)+1)%3],1.35)}
@@ -565,6 +606,8 @@ function noise(dur,vol,f1,f2,type){if(!AC)return;const t=AC.currentTime;const s=
 const sCrash=()=>{noise(0.35,0.5,900,120);if(AC)tone(140,AC.currentTime,0.25,'square',0.18,sfx,50)};
 const sClunk=()=>{if(!AC)return;const t=AC.currentTime;tone(95,t,0.06,'square',0.22);tone(78,t+0.13,0.06,'square',0.2)};
 const sNitro=()=>noise(0.6,0.25,700,3500,'bandpass');
+function sSiren(){if(!AC)return;const t=AC.currentTime;for(let i=0;i<4;i++){tone(i%2?620:880,t+i*0.22,0.2,'square',0.07)}}
+function sGeese(soft){if(!AC)return;const t=AC.currentTime;const v=soft?0.04:0.09;for(let i=0;i<(soft?2:4);i++)tone(520+Math.random()*120,t+i*0.13,0.1,'sawtooth',v,sfx,300)}
 const sBlip=()=>{if(AC)tone(880,AC.currentTime,0.08,'square',0.08)};
 const sBeep=(hi)=>{if(AC)tone(hi?880:440,AC.currentTime,hi?0.4:0.18,'square',0.14)};
 function sFanfare(){if(!AC)return;const t=AC.currentTime;[72,76,79,84,79,84].forEach((m,i)=>tone(440*Math.pow(2,(m-69)/12),t+i*0.12,i==5?0.6:0.14,'square',0.1,mus))}
@@ -579,7 +622,9 @@ function loadVoices(){for(const k in VOICES){try{const bin=atob(VOICES[k]);const
 function stopVoice(){if(voiceSrc){try{voiceSrc.stop()}catch(e){}voiceSrc=null}if(mus)mus.gain.setTargetAtTime(0.32,AC.currentTime,0.1)}
 function playVoice(k){if(!AC)return;const b=VBUF[k];if(!b){pendingVoice=k;return}pendingVoice=null;stopVoice();const src=AC.createBufferSource();src.buffer=b;const gg=AC.createGain();gg.gain.value=1.5;src.connect(gg);gg.connect(master);
   mus.gain.setTargetAtTime(0.06,AC.currentTime,0.05);src.onended=()=>{if(voiceSrc===src){voiceSrc=null;mus.gain.setTargetAtTime(0.32,AC.currentTime,0.2)}};src.start();voiceSrc=src}
-function planVoices(){const pool=['m6','cx9','haval','opel','x1','x2'].sort(()=>Math.random()-0.5);const n=2+(Math.random()<0.5?1:0);voicePlan=[];let t=9+Math.random()*8;for(let i=0;i<n;i++){voicePlan.push({t,k:pool[i]});t+=17+Math.random()*14}}
+let lastVoiceT=-99;
+function eventVoice(k){if(voiceSrc||raceT-lastVoiceT<14)return;lastVoiceT=raceT;playVoice(k)}
+function planVoices(){const pool=['m6','cx9','haval','opel','x1','x2'].sort(()=>Math.random()-0.5);const n=1+(Math.random()<0.5?1:0);voicePlan=[];let t=12+Math.random()*10;const extra=['x1','x2'].sort(()=>Math.random()-0.5);for(let i=0;i<n;i++){voicePlan.push({t,k:Math.random()<0.6?extra[i]:pool[i]});t+=25+Math.random()*15}}
 let musOn=false,musStep=0,musNext=0;
 function musicTick(){if(!AC||!musOn)return;if(musNext<AC.currentTime)musNext=AC.currentTime+0.05;while(musNext<AC.currentTime+0.15){const i=musStep%32;if(MEL[i])tone(440*Math.pow(2,(MEL[i]-69)/12),musNext,0.13,'square',0.05,mus);if(BAS[i])tone(440*Math.pow(2,(BAS[i]-69)/12),musNext,0.24,'triangle',0.13,mus);musNext+=60/138/2;musStep++}}
 
@@ -600,11 +645,12 @@ function startRace(){
   position=0;speed=0;playerX=laneC(3,0);nitro=100;nitroOn=false;raceT=0;cdT=3.2;finished=false;finT=0;finishTime=0;
   toast=null;toastQ=[];shakeT=0;mud=0;fogT=8+Math.random()*6;fogA=0;clunkT=1;crashes=0;eggSeen={};coins=[];curBg=CITIES[trackIdx].id;prevBg=null;bgFade=0;skyOff=0;
   const others=CARS.map((c,i)=>i).filter(i=>i!==carIdx);
-  const fs=[0.85,0.89,0.93];
-  bots=others.map((ci,k)=>({ci,z:900+k*900,x:laneC(3,[1,2,1][k]),lane:[1,2,1][k],speed:0,f:fs[k],done:false,time:0,yieldT:0,parkX:[-2.2,2.2,-3.6][k]}));
+  const D=DIFF[diffIdx];const fs=[0.85,0.89,0.93].map(f=>f*D.bot);fines=0;lastPZ=1300;lastVoiceT=-99;
+  bots=others.map((ci,k)=>({ci,ahead:true,z:900+k*900,x:laneC(3,[1,2,1][k]),lane:[1,2,1][k],speed:0,f:fs[k],done:false,time:0,yieldT:0,parkX:[-2.2,2.2,-3.6][k]}));
   traffic=[];const rnd=mulberry(77+trackIdx);
-  for(let k=0;k<4;k++){const zi=180+Math.floor(rnd()*(cityEnd-260));traffic.push({tr:k%TRAFFIC.length,z:zi*SEG,lane:Math.floor(rnd()*3),x:0,speed:MAX*(0.32+rnd()*0.18),alive:true})}
-  const cs0=cityEnd+140;for(let k=0;k<3;k++){const zi=cs0+Math.floor(rnd()*1400);traffic.push({tr:(k+2)%TRAFFIC.length,z:zi*SEG,lane:Math.floor(rnd()*2),x:0,speed:MAX*(0.42+rnd()*0.15),alive:true})}
+  for(let k=0;k<D.city;k++){const zi=180+Math.floor(rnd()*(cityEnd-260));traffic.push({tr:k%TRAFFIC.length,z:zi*SEG,lane:Math.floor(rnd()*3),x:0,speed:MAX*(0.32+rnd()*0.18),alive:true})}
+  for(let k=0;k<D.hwy;k++){const zi=hwyStart+40+Math.floor(rnd()*300);traffic.push({tr:k%2?5:0,z:zi*SEG,lane:Math.floor(rnd()*4),x:0,speed:MAX*(0.45+rnd()*0.12),alive:true})}
+  const cs0=countryStart+40;for(let k=0;k<D.country;k++){const zi=cs0+Math.floor(rnd()*1100);traffic.push({tr:(k+2)%TRAFFIC.length,z:zi*SEG,lane:Math.floor(rnd()*2),x:0,speed:MAX*(0.42+rnd()*0.15),alive:true})}
   for(const t of traffic){const s=findSeg(t.z);t.lane=Math.min(t.lane,s.lanes-1);t.x=laneC(s.lanes,t.lane)}
   state='count';paused=false;setControls(true);musOn=false;stopVoice();planVoices();
 }
@@ -625,7 +671,7 @@ function update(dt){
     return;
   }
   raceT+=dt;
-  if(voicePlan.length&&raceT>=voicePlan[0].t&&!voiceSrc&&!finished)playVoice(voicePlan.shift().k);
+  if(voicePlan.length&&raceT>=voicePlan[0].t&&!voiceSrc&&!finished){if(raceT-lastVoiceT<8)voicePlan[0].t+=6;else{lastVoiceT=raceT;playVoice(voicePlan.shift().k)}}
   const base=findSeg(position);const wf=base.wf;const pct=speed/MAX;
   // руление
   const steer=(inp.left?-1:0)+(inp.right?1:0);
@@ -670,7 +716,7 @@ function update(dt){
     const s=findSeg(b.z);const n=s.lanes;b.lane=Math.min(b.lane,n-1);
     let tgt=MAX*b.f;if(s.zone==='dirt'||s.zone==='end')tgt=Math.min(tgt,MAX*0.47);
     tgt*=1-Math.min(0.28,Math.abs(s.curve)*0.04);
-    const gap=b.z-position;if(!finished){if(gap>4500)tgt*=0.88;else if(gap<-6000)tgt=Math.min(tgt*1.12,MAX*0.97)}
+    const gap=b.z-position;if(!finished){if(gap>DIFF[diffIdx].lead)tgt*=0.88;else if(gap<-6000)tgt=Math.min(tgt*1.12,MAX*0.97)}
     let tx=laneC(n,b.lane);
     if(b.done){const stopZ=finishZ+5000+bots.indexOf(b)*1600;tgt=b.z<stopZ?MAX*0.3*clamp((stopZ-b.z)/3000,0.15,1):0;tx=b.parkX}
     else{
@@ -687,6 +733,19 @@ function update(dt){
     if(!b.done&&b.z>=finishZ){b.done=true;b.time=raceT}
   }
   for(const t of traffic){if(!t.alive)continue;const s=findSeg(t.z);{const dz=t.z-position;if(dz>2500&&dz<9000&&speed>t.speed*1.15&&Math.abs(t.x-playerX)*ROADW*s.wf<1100&&s.lanes>1&&!t.moved){t.moved=1;t.lane=(t.lane+(t.lane===0?1:-1)+s.lanes)%s.lanes}if(dz<0)t.moved=0}if(s.zone==='turn'||s.zone==='dirt'){t.alive=false;continue}t.lane=Math.min(t.lane,s.lanes-1);t.x+=clamp(laneC(s.lanes,t.lane)-t.x,-dt*0.9,dt*0.9);t.z+=t.speed*dt}
+  // ямы
+  const pz=position+1300;
+  for(const ph of potholes){if(lastPZ<ph.z&&pz>=ph.z){const sg=findSeg(ph.z);if(Math.abs(playerX-ph.off)*ROADW*sg.wf<750){speed*=0.72;shakeT=0.4;sClunk();if(CARS[carIdx].id==='m6'){tukT=0.8}egg(['Ой, яма!','Яма! Подвеска плачет','Кто тут асфальт украл?'][Math.floor(Math.random()*3)],1.2)}}}
+  // ДПС
+  for(const d of dpsList){if(!d.done&&lastPZ<d.z-1600&&pz>=d.z-1600){d.done=true;const kmh=speed/MAX*180;if(kmh>d.lim+10){fines+=500;sSiren();say('ДПС: '+Math.round(kmh)+' вместо '+d.lim+'. Штраф 500 ₽',1.6)}}}
+  // гуси
+  if(geese){const gd=geese.z-pz;if(!geese.on&&!geese.gone&&gd<14000){geese.on=true}
+    if(geese.on){geese.x+=geese.dir*dt*(geese.hit?3:0.55);if(Math.abs(geese.x)>2.4){geese.on=false;geese.gone=true}
+      const gs=findSeg(geese.z);if(!geese.hit&&Math.abs(gd)<900&&Math.abs(geese.x-playerX)*ROADW*gs.wf<1000){geese.hit=true;speed*=0.55;shakeT=0.3;sGeese();say('Га-га-га! Гуси!',1.4)}}
+    geese.quack-=dt;if(geese.on&&!geese.hit&&gd>0&&gd<9000&&geese.quack<=0){geese.quack=1.6;sGeese(true)}}
+  lastPZ=pz;
+  // голоса друзей на обгонах
+  for(const b of bots){const ah=b.z>position;if(ah!==b.ahead){b.ahead=ah;if(raceT>4&&!finished)eventVoice(CARS[b.ci].id)}}
   // столкновения
   const wfP=base.wf;
   for(const o of[...bots,...traffic]){if(o.alive===false||o.done)continue;const dz=o.z-position;const dxw=Math.abs(o.x-playerX)*ROADW*wfP;
@@ -715,10 +774,13 @@ function crash(){sCrash();shakeT=0.35;crashes++;const id=CARS[carIdx].id;
 }
 function endRace(){
   const C=CARS[carIdx];
-  results=[{name:C.name,player:true,time:finishTime,dot:C.dot}];
-  for(const b of bots){const bc=CARS[b.ci];let t=b.done?b.time:raceT+(finishZ-b.z)/(MAX*b.f*0.8);results.push({name:bc.name,time:t,dot:bc.dot})}
+  results=[{name:C.name,id:C.id,player:true,time:finishTime,dot:C.dot}];
+  for(const b of bots){const bc=CARS[b.ci];let t=b.done?b.time:raceT+(finishZ-b.z)/(MAX*b.f*0.8);results.push({name:bc.name,id:bc.id,time:t,dot:bc.dot})}
   results.sort((a,b)=>a.time-b.time);
   state='finish';setControls(false);setEngine(0,false);hornOff();musOn=true;selBtn=0;
+  const board=boardFor(trackIdx,diffIdx);const trackBest=board.length?board[0].t:Infinity;
+  newRec=null;saveRecord(trackIdx,diffIdx,C.id,finishTime).then(pb=>{if(finishTime<trackBest)newRec='РЕКОРД ТРАССЫ!';else if(pb)newRec='ЛИЧНЫЙ РЕКОРД!'});
+  stopVoice();setTimeout(()=>{if(state==='finish')playVoice(results[0].id)},600);
 }
 
 /* ===================== отрисовка гонки ===================== */
@@ -764,6 +826,7 @@ function drawRace(){
   const bySeg=new Map();
   const addCar=(o,img,ww,label)=>{const zr=o.z-1300;const i=Math.floor(zr/SEG);if(i<base.i||i>=base.i+lastN)return;if(!bySeg.has(i))bySeg.set(i,[]);bySeg.get(i).push({o,img,ww,label,zr})};
   for(const b of bots)addCar(b,CARS[b.ci].rear,CARS[b.ci].sil.startsWith('suv')?1120:1060,CARS[b.ci].label);
+  if(geese&&geese.on)addCar({z:geese.z+1300,x:geese.x},S.geese.img,S.geese.ww,null);
   for(const t of traffic)if(t.alive)addCar(t,TRAFFIC[t.tr].rear,TRAFFIC[t.tr].tall?1150:1040,null);
   for(let n=lastN-1;n>0;n--){const s=segs[base.i+n];if(s.p1.cz<=CD)continue;
     for(const sp of s.sprites){const sx=s.p1.sx+s.p1.sw*sp.off;drawSpr(sp.s.img,sp.s.ww,s.p1.sc,sx,s.p1.sy,sp.c?-0.5:(sp.off<0?-1:0),-1,s.clip)}
@@ -943,6 +1006,22 @@ function drawCountdown(){
 }
 function drawToast(){const fin=state==='finish';g.font='9px '+PF;const w=Math.min(W-90,g.measureText(toast.s).width+12);const x=Math.round(W/2-w/2),y=fin?H-40:42;g.globalAlpha=Math.min(1,toast.t*4);rrect(x,y,w,13,3,'rgba(10,8,20,.7)');txt(toast.s,W/2,y+2,9,'#fff','center',PF);g.globalAlpha=1}
 
+/* ===================== рекорды ===================== */
+const REC_KEY='aida_rec_v1';let recLocal={};try{recLocal=JSON.parse(localStorage.getItem(REC_KEY)||'{}')||{}}catch(e){recLocal={}}
+let recDb=null,recMe=null,recRemote=null,newRec=null;
+const fmt=t=>Math.floor(t/60)+':'+(t%60).toFixed(1).padStart(4,'0');
+async function initRecords(){try{if(!window.claude||!window.claude.use)return;const db=await window.claude.use('db');if(!db)return;const u=await window.claude.use('user');recMe=u?await u.id():null;recDb=db;
+  db.collection('records').onSnapshot(snap=>{const rows=[];for(const d of snap.docs){const e=(d.data()||{}).e||{};for(const k in e){if(typeof e[k]==='number')rows.push({k,t:e[k],mine:d.id===recMe})}}recRemote=rows},()=>{})}catch(e){}}
+function boardFor(ci,di){const pre=CITIES[ci].id+'|'+di+'|';let rows=[];
+  if(recRemote){rows=recRemote.filter(r=>r.k.startsWith(pre)).map(r=>({car:r.k.slice(pre.length),t:r.t,mine:r.mine}))}
+  else{for(const k in recLocal)if(k.startsWith(pre))rows.push({car:k.slice(pre.length),t:recLocal[k],mine:true})}
+  return rows.sort((a,b)=>a.t-b.t)}
+async function saveRecord(ci,di,car,t){const k=CITIES[ci].id+'|'+di+'|'+car;let pb=false;
+  if(!(recLocal[k]<=t)){recLocal[k]=t;pb=true;try{localStorage.setItem(REC_KEY,JSON.stringify(recLocal))}catch(e){}}
+  if(recDb&&recMe){try{const ref=recDb.doc('records/'+recMe);const snap=await ref.get();const e=Object.assign({},snap.exists?((snap.data()||{}).e||{}):{});if(!(e[k]<=t)){e[k]=t;await ref.set({e})}}catch(e){}}
+  return pb}
+const carName=id=>(CARS.find(c=>c.id===id)||{name:id}).name;
+
 /* ===================== меню ===================== */
 let hits=[];
 function hit(x,y,w,h,cb){hits.push({x,y,w,h,cb})}
@@ -997,17 +1076,19 @@ function drawCar(t){
   for(let i=0;i<4;i++)R(W/2-14+i*8,sy+sh-6,5,3,i===carIdx?'#ffd56a':'rgba(255,255,255,.4)');
 }
 function trackMap(ci){if(trackMap[ci])return trackMap[ci];const C=CITIES[ci];const pts=[];let a=-Math.PI/2,x=0,y=0;const add=(n,c)=>{for(let i=0;i<n;i++){a+=c*0.0055;x+=Math.cos(a);y+=Math.sin(a);if(i%4===0)pts.push([x,y])}};
-  add(30,0);for(const s of C.secs){add(s[0],s[3]/2);add(s[1],s[3]);add(s[2],s[3]/2)}const cityN=pts.length;add(130,1);for(const s of[[30,120,30,0],[50,100,50,2],[40,120,40,0],[50,80,50,-3],[40,160,40,0],[50,100,50,3],[40,120,40,0],[30,240,30,0]]){add(s[0],s[3]/2);add(s[1],s[3]);add(s[2],s[3]/2)}add(52,-7*3.4);add(260,0.4);
+  add(30,0);for(const s of C.secs){add(s[0],s[3]/2);add(s[1],s[3]);add(s[2],s[3]/2)}const cityN=pts.length;add(100,1);for(const s of HWY_SECS){add(s[0],s[3]/2);add(s[1],s[3]);add(s[2],s[3]/2)}for(const s of COUNTRY_SECS){add(s[0],s[3]/2);add(s[1],s[3]);add(s[2],s[3]/2)}add(52,-7*3.4);add(260,0.4);
   const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]);const mnx=Math.min(...xs),mxx=Math.max(...xs),mny=Math.min(...ys),mxy=Math.max(...ys);return trackMap[ci]={pts,cityN,mnx,mxx,mny,mxy}}
 function drawTrackSel(t){
   const bgG=g.createLinearGradient(0,0,0,H);bgG.addColorStop(0,'#1d1530');bgG.addColorStop(1,'#0e0b16');g.fillStyle=bgG;g.fillRect(0,0,W,H);
   banner('ОТКУДА ЕДЕМ?');
   button(6,3,30,18,'<',()=>{state='car';sBlip()});
-  const gx=10,gy=34,gw=(W-30)/2,gh=(H-gy-12)/2-3;
+  {const n=DIFF.length,bw=Math.round((W-20-(n-1)*6)/n);DIFF.forEach((d,k)=>button(10+k*(bw+6),30,bw,16,'',()=>{diffIdx=k;try{localStorage.setItem('aida_diff',k)}catch(e){}sBlip()},k===diffIdx,'#2b2340'));
+    DIFF.forEach((d,k)=>txt(d.name,10+k*(bw+6)+bw/2,33,9,k===diffIdx?'#2a1c00':'#fff','center',PF))}
+  const gx=10,gy=52,gw=(W-30)/2,gh=(H-gy-8)/2-3;
   CITIES.forEach((C,i)=>{const x=Math.round(gx+(i%2)*(gw+10)),y=Math.round(gy+Math.floor(i/2)*(gh+6));const sel=i===trackSel;
     rrect(x,y,gw,gh,5,sel?'#ffd56a':'#3b2f57');rrect(x+2,y+2,gw-4,gh-4,4,'#191329');
     const ic=S[C.icon].img;const ih=gh-10,iw=ih*ic.width/ic.height;g.drawImage(ic,x+6,y+5,Math.round(iw),Math.round(ih));
-    txt(C.name,x+12+iw,y+10,8,'#fff','left',PX);
+    txt(C.name,x+12+iw,y+8,8,'#fff','left',PX);{const b=boardFor(i,diffIdx)[0];txt(b?'Рекорд '+fmt(b.t):'Рекорда нет',x+12+iw,y+21,9,b?'#ffd56a':'#7d6fa0','left',PF);if(b)txt(carName(b.car),x+12+iw,y+31,9,'#a99ccc','left',PF)}
     const m=trackMap(i);const mx0=x+gw-58,my0=y+gh-30,mw=52,mh=26;const sc=Math.min(mw/(m.mxx-m.mnx||1),mh/(m.mxy-m.mny||1));
     g.lineWidth=1.5;g.strokeStyle='#7a6aa6';g.beginPath();m.pts.forEach((p,k)=>{const px=mx0+(p[0]-m.mnx)*sc,py=my0+(p[1]-m.mny)*sc;k?g.lineTo(px,py):g.moveTo(px,py)});g.stroke();
     g.strokeStyle=sel?'#ffd56a':'#e8e0ff';g.beginPath();m.pts.slice(0,m.cityN).forEach((p,k)=>{const px=mx0+(p[0]-m.mnx)*sc,py=my0+(p[1]-m.mny)*sc;k?g.lineTo(px,py):g.moveTo(px,py)});g.stroke();
@@ -1023,18 +1104,29 @@ function drawFinish(t){
   for(let x=0;x<W;x+=80)g.drawImage(S.profGrey.img,x,gy-22,80,24);
   R(0,gy,W,H-gy,'#6aab45');for(let y=gy;y<H;y+=6)R(0,y,W,3,'#64a441');
   const hs=1.05;g.drawImage(S.house.img,Math.round(W*0.6),gy-Math.round(96*hs)+12,Math.round(128*hs),Math.round(104*hs));
-  g.drawImage(S.shed.img,Math.round(W*0.6)-30,gy-26,28,28);g.drawImage(S.gazebo.img,Math.round(Math.min(190,W*0.45))+16,gy-38,Math.round(W*0.6)-Math.round(Math.min(190,W*0.45))-44,44);
+  const pw=Math.round(Math.min(196,W*0.46)),px=8,py=30;
+  g.drawImage(S.shed.img,Math.round(W*0.6)-30,gy-26,28,28);g.drawImage(S.gazebo.img,pw+16,gy-38,Math.max(30,Math.round(W*0.6)-pw-44),44);
   for(let i=0;i<6;i++){R(W*0.5+i*14,gy+6+i*2,2,4,'#ddd');circ(W*0.5+i*14+1,gy+6+i*2,2,'#fff8c8')}
-  const C=CARS[carIdx];const fcw=176,fch=Math.round(fcw*C.side.height/C.side.width);g.drawImage(C.side,Math.round(W*0.3),H-8-fch,fcw,fch);
-  if(C.id==='cx9'&&mud>0.05){g.globalAlpha=Math.min(0.85,mud+0.2);for(const m of MUD.slice(0,22))circ(W*0.3+15+m.x*120,H-40+m.y*18,2+m.s*0.3,'#5b4429');g.globalAlpha=1}
+  const C=CARS[carIdx];const fcw=170,fch=Math.round(fcw*C.side.height/C.side.width);g.drawImage(C.side,Math.round(W*0.52),H-24-fch,fcw,fch);
+  if(C.id==='cx9'&&mud>0.05){g.globalAlpha=Math.min(0.85,mud+0.2);for(const m of MUD.slice(0,22))circ(W*0.52+15+m.x*120,H-56+m.y*18,2+m.s*0.3,'#5b4429');g.globalAlpha=1}
   const me=results.findIndex(r=>r.player)+1;
   banner(me===1?'ПРИЕХАЛИ НА ДАЧУ ПЕРВЫМИ!':'ПРИЕХАЛИ НА ДАЧУ!');
-  const pw=Math.round(Math.min(190,W*0.45)),px=8,py=30;rrect(px,py,pw,70,5,'rgba(10,8,20,.78)');
-  txt(me+' МЕСТО',px+8,py+6,9,me===1?'#ffd56a':'#fff','left',PX);
-  results.forEach((r,i)=>{const yy=py+20+i*11;if(r.player)R(px+4,yy-1,pw-8,11,'rgba(255,213,106,.25)');R(px+8,yy+2,5,5,r.dot);const tt=Math.floor(r.time/60)+':'+(r.time%60).toFixed(1).padStart(4,'0');txt((i+1)+'. '+r.name+(r.player?' (ты)':''),px+16,yy,9,'#fff','left',PF);txt(tt,px+pw-8,yy,9,'#cfe6ff','right',PF)});
+  // итоги заезда
+  rrect(px,py,pw,72,5,'rgba(10,8,20,.8)');
+  txt(me+' МЕСТО',px+8,py+5,9,me===1?'#ffd56a':'#fff','left',PX);txt(DIFF[diffIdx].name,px+pw-8,py+5,8,'#a99ccc','right',PF);
+  results.forEach((r,i)=>{const yy=py+19+i*11;if(r.player)R(px+4,yy-1,pw-8,11,'rgba(255,213,106,.25)');R(px+8,yy+2,5,5,r.dot);txt((i+1)+'. '+r.name+(r.player?' (ты)':''),px+16,yy,9,'#fff','left',PF);txt(fmt(r.time),px+pw-8,yy,9,'#cfe6ff','right',PF)});
+  if(fines)txt('Штрафы ДПС: '+fines+' ₽',px+8,py+62,8,'#ff9a8a','left',PF);
+  // рекорды трассы
+  const board=boardFor(trackIdx,diffIdx).slice(0,3);const ry=py+76;rrect(px,ry,pw,14+Math.max(1,board.length)*10,5,'rgba(10,8,20,.8)');
+  txt('РЕКОРДЫ · '+CITIES[trackIdx].name,px+8,ry+4,6,'#ffd56a','left',PX);
+  if(newRec)txt(newRec,px+pw-8,ry+3,8,'#7dff9a','right',PF);
+  if(!board.length)txt('пока пусто',px+8,ry+14,9,'#a99ccc','left',PF);
+  board.forEach((r,i)=>{const yy=ry+13+i*10;txt((i+1)+'. '+carName(r.car)+(r.mine?' (ты)':''),px+8,yy,9,r.mine?'#fff3a8':'#fff','left',PF);txt(fmt(r.t),px+pw-8,yy,9,'#cfe6ff','right',PF)});
+  // шутка
   const bad=crashes>2||(C.id==='cx9'&&mud>0.3)||(C.id==='opel'&&eggSeen.fog)||(C.id==='m6'&&eggSeen.sb);
   const joke=(bad?C.end.bad:C.end.good)+(me===4?' Шашлык жарит тот, кто приехал последним!':'');
-  const jl=wrap(joke,pw-12,9);rrect(px,py+74,pw,jl.length*10+8,5,'rgba(10,8,20,.78)');jl.forEach((l,i)=>txt(l,px+6,py+78+i*10,9,'#fff3a8','left',PF));
+  g.font='9px '+PF;const jw=Math.min(W-pw-30,g.measureText(joke).width+12);const jl=wrap(joke,jw-10,9);const jx=W-jw-8,jy=30;
+  rrect(jx,jy,jw,jl.length*10+5,4,'rgba(10,8,20,.72)');jl.forEach((l,i)=>txt(l,jx+5,jy+3+i*10,9,'#fff3a8','left',PF));
   const bw=Math.round((W-32)/3),by=H-20;
   button(8,by,bw,16,'ЕЩЁ РАЗ',()=>startRace(),selBtn===0);button(16+bw,by,bw,16,'ГОРОД',()=>{state='track';musOn=true;sBlip()},selBtn===1);button(24+bw*2,by,bw,16,'МАШИНА',()=>{state='car';musOn=true;sBlip()},selBtn===2);
 }
@@ -1093,8 +1185,8 @@ function frame(now){
 }
 resize();requestAnimationFrame(frame);
 const fontLoad=Promise.all(['8px "Press Start 2P"','10px "Pixelify Sans"','30px "Rubik Mono One"'].map(f=>document.fonts?document.fonts.load(f,'АЙДА').catch(()=>{}):Promise.resolve()));
-Promise.race([fontLoad,new Promise(r=>setTimeout(r,3000))]).then(()=>{buildSprites();buildBG();buildTrack(0);state='title'});
-window.__aida={get state(){return state},set state(v){state=v},startRace,inp,get position(){return position},set position(v){position=v},setCar:i=>carIdx=i,setTrack:i=>trackIdx=i,get finishZ(){return finishZ},get bots(){return bots},endRace,get speed(){return speed},get px(){return playerX},get raceT(){return raceT},set speed(v){speed=v}};
+Promise.race([fontLoad,new Promise(r=>setTimeout(r,3000))]).then(()=>{buildSprites();buildBG();buildTrack(0);state='title';initRecords()});
+window.__aida={get hwyStart(){return hwyStart},get countryStart(){return countryStart},get geese(){return geese},get fines(){return fines},get state(){return state},set state(v){state=v},startRace,inp,get position(){return position},set position(v){position=v},setCar:i=>carIdx=i,setTrack:i=>trackIdx=i,get finishZ(){return finishZ},get bots(){return bots},endRace,get speed(){return speed},get px(){return playerX},get raceT(){return raceT},set speed(v){speed=v}};
 })();
 </script>
 
