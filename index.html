@@ -979,7 +979,7 @@ function drawCar(t){
   // сцена с машиной
   const sy=30,sh=82;g.save();g.beginPath();g.rect(10,sy,W-20,sh);g.clip();
   const sk=g.createLinearGradient(0,sy,0,sy+sh);sk.addColorStop(0,'#5aa0ec');sk.addColorStop(1,'#d6ecfb');g.fillStyle=sk;g.fillRect(10,sy,W-20,sh);
-  tile(BG.hills,t*0.01,sy+sh-52,1);tile(BG.country,t*0.02,sy+sh-96,1);R(10,sy+sh-14,W-20,14,'#5f6166');for(let i=-((t*40)%24);i<W;i+=24)R(i,sy+sh-8,12,2,'#e8e8e8');
+  tile(BG.hills,-t*0.01,sy+sh-52,1);tile(BG.country,-t*0.03,sy+sh-96,1);R(10,sy+sh-14,W-20,14,'#5f6166');for(let i=((t*60)%24)-24;i<W;i+=24)R(i,sy+sh-8,12,2,'#e8e8e8');
   const cw=Math.round(Math.min(W*0.56,(sh-22)*C.side.width/C.side.height)),ch=Math.round(cw*C.side.height/C.side.width);g.drawImage(C.side,Math.round(W/2-cw/2),Math.round(sy+sh-ch-1+Math.sin(t*6)*0.5),cw,ch);g.restore();
   g.strokeStyle='#ffd56a';g.lineWidth=2;g.strokeRect(10,sy,W-20,sh);
   rrect(12,sy+2,g.measureText?Math.min(W-24,C.name.length*8+14):120,14,0,'rgba(10,8,20,.6)');txt(C.name,19,sy+5,8,'#fff','left',PX);
