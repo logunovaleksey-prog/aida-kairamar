@@ -114,6 +114,541 @@ function txt(s,x,y,size,col,align,font,outline){
 }
 function wrap(s,maxW,size,font){g.font=size+'px '+(font||PF);const words=s.split(' ');const lines=[];let cur='';for(const w of words){const t=cur?cur+' '+w:w;if(g.measureText(t).width>maxW&&cur){lines.push(cur);cur=w}else cur=t}if(cur)lines.push(cur);return lines}
 
+/* ===================== графика машин: кузова и салоны ===================== */
+const ART=(()=>{
+/* Mazda 6 (GJ, 2016), Soul Red — пиксель-арт. Профиль обведён по присланному фото. */
+const PAL={
+  body:'#b5121b',hi:'#d8222b',hi2:'#f04a50',spec:'#ff9a9a',mid:'#9a0f17',dark:'#6e0a10',deep:'#420609',
+  chrome:'#dfe3e8',chrome2:'#9aa2ab',glass:'#16202c',glass2:'#2c3d50',refl:'#7f98b0',
+  tire:'#141416',tire2:'#2a2a2e',rim:'#c9ced4',rim2:'#8e959d',rimDark:'#3c4148',
+  lamp:'#eef3f7',lampIn:'#56616d',tail:'#c40d1a',tailHi:'#ff4f5a',tailDk:'#7a0810',outline:'#1c0608'
+};
+/* ---------- вид сбоку: 240×80, координаты снимаются с фото и переводятся в пиксели ---------- */
+function drawSide(c){
+  const P=PAL;const X=px=>(px-66)*0.2875+2,Y=py=>(py-928)*0.2875+4;
+  const pts=a=>{const o=[];for(let i=0;i<a.length;i+=2)o.push(X(a[i]),Y(a[i+1]));return o};
+  const path=(a)=>{const p=pts(a);c.beginPath();c.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)c.lineTo(p[i],p[i+1]);c.closePath()};
+  const fill=(a,col)=>{path(a);c.fillStyle=col;c.fill()};
+  const line=(a,col,w)=>{const p=pts(a);c.beginPath();c.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)c.lineTo(p[i],p[i+1]);c.strokeStyle=col;c.lineWidth=w||1;c.stroke()};
+  const circ=(px,py,r,col)=>{c.beginPath();c.arc(X(px),Y(py),r,0,Math.PI*2);c.fillStyle=col;c.fill()};
+  const BODY=[78,1136,70,1112,67,1072,69,1050,78,1036,112,1022,172,1012,240,1005,302,998,362,975,432,945,482,935,532,931,592,933,642,940,692,958,740,981,790,992,846,990,860,992,864,1001,871,1022,873,1080,869,1110,856,1131,780,1136];
+  // тень на земле
+  c.fillStyle='rgba(0,0,0,.35)';c.beginPath();c.ellipse(X(470),Y(1172),X(860)-X(470),3.2,0,0,Math.PI*2);c.fill();
+  // кузов: заливка и тональные зоны
+  fill(BODY,P.body);
+  c.save();path(BODY);c.clip();
+  const g=c.createLinearGradient(0,Y(990),0,Y(1136));g.addColorStop(0,P.hi);g.addColorStop(0.28,P.hi);g.addColorStop(0.32,P.body);g.addColorStop(0.72,P.mid);g.addColorStop(1,P.dark);
+  c.fillStyle=g;c.fillRect(0,Y(985),240,80);
+  // капот и крыша — светлее
+  fill([69,1050,78,1036,112,1022,172,1012,240,1005,302,998,300,1008,230,1014,160,1022,110,1032,80,1046],P.hi2);
+  fill([432,945,482,935,532,931,592,933,642,940,640,944,590,938,532,936,482,940,435,950],P.hi2);
+  // крышка багажника
+  fill([740,981,790,992,846,990,860,992,858,997,800,998,745,988],P.hi2);
+  // плечевая линия (характерная «волна» Mazda) — блик над ней
+  line([115,1036,200,1030,300,1029,420,1029,560,1027,680,1022,780,1014,862,1008],P.spec,1);
+  line([115,1038,200,1032,300,1031,420,1031,560,1029,680,1024,780,1016,862,1010],P.dark,1);
+  // нижняя вогнутая линия дверей, поднимается к заднему колесу
+  fill([300,1100,420,1092,540,1084,640,1074,700,1062,700,1068,640,1082,540,1092,420,1100,300,1108],P.deep);
+  line([300,1097,420,1089,540,1081,640,1071,700,1059],P.hi,1);
+  // переднее крыло над колесом
+  line([150,1048,190,1046,250,1050,290,1062],P.hi,1);
+  c.restore();
+  // арки колёс
+  for(const[wx,wy]of[[222,1112],[702,1112]]){c.save();c.beginPath();c.rect(0,0,240,Y(1134));c.clip();circ(wx,wy,19.2,P.deep);circ(wx,wy,18.4,'#0c0c0e');c.restore()}
+  // стёкла
+  const GL=[330,1003,372,972,432,947,500,940,560,939,625,944,672,961,706,985,700,990];
+  fill(GL,P.glass);
+  c.save();path(GL);c.clip();
+  c.fillStyle=P.glass2;c.fillRect(X(330),Y(975),X(706)-X(330),Y(1003)-Y(975));
+  c.fillStyle=P.refl;for(const x0 of[392,560]){c.beginPath();c.moveTo(X(x0),Y(1003));c.lineTo(X(x0+40),Y(938));c.lineTo(X(x0+58),Y(938));c.lineTo(X(x0+18),Y(1003));c.fill()}
+  c.restore();
+  // стойки: B и узкая перед форточкой
+  fill([500,940,512,940,512,1002,500,1003],'#0b0c0f');
+  fill([627,944,636,946,636,994,627,995],'#0b0c0f');
+  // хромированная окантовка окон и молдинг по линии стёкол
+  line([330,1003,372,971,432,946,500,939,560,938,625,943,672,960,708,986],P.chrome,1);
+  line([326,1005,706,990],P.chrome,1.2);
+  // зазоры дверей
+  line([306,1004,300,1060,304,1130],P.dark,1);
+  line([506,1003,508,1132],P.dark,1);
+  line([646,996,650,1050,640,1078],P.dark,1);
+  // ручки
+  for(const[hx,hy]of[[455,1027],[632,1018]]){c.fillStyle=P.chrome2;c.fillRect(X(hx),Y(hy),7,1.6);c.fillStyle=P.chrome;c.fillRect(X(hx),Y(hy)-0.6,7,0.8)}
+  // зеркало
+  fill([352,990,380,982,394,990,390,1010,360,1012],P.body);fill([352,990,380,982,394,990,392,995,356,995],P.hi2);fill([360,1012,390,1010,386,1016,364,1017],'#0b0c0f');
+  // лючок бензобака
+  c.strokeStyle=P.mid;c.lineWidth=1;c.beginPath();c.arc(X(744),Y(1012),2.6,0,Math.PI*2);c.stroke();
+  // передняя фара — узкая, вытянутая к крылу
+  fill([71,1050,80,1038,168,1027,150,1040,96,1051],P.lamp);fill([84,1044,150,1036,140,1042,94,1048],P.lampIn);line([86,1041,150,1033],'#ffffff',1);
+  // решётка с хромовым «крылом» под фарой
+  fill([67,1052,74,1052,76,1084,68,1082],'#0b0c0f');line([68,1052,96,1054,130,1052],P.chrome,1);
+  // нижний воздухозаборник / противотуманка
+  fill([82,1096,132,1094,128,1112,88,1114],'#0b0c0f');line([90,1104,124,1103],P.chrome2,1);
+  // задний фонарь
+  fill([778,993,858,990,866,1003,834,1013,788,1009],P.outline);fill([783,995,856,993,862,1002,832,1010,792,1006],P.tailDk);fill([790,997,852,995,856,1000,830,1005,796,1003],P.tail);line([792,998,852,996],P.tailHi,1);c.fillStyle=P.tailHi;c.fillRect(X(840)-1,Y(999),2,2);
+  // задний отражатель и выхлоп
+  fill([846,1084,868,1084,867,1093,847,1093],P.tailDk);
+  fill([826,1128,862,1127,860,1136,828,1136],P.chrome2);fill([830,1130,858,1129,857,1134,831,1134],'#2a2d31');
+  // колёса: 19", пять сдвоенных спиц
+  for(const[wx,wy]of[[222,1112],[702,1112]]){
+    const cx=X(wx),cy=Y(wy);
+    circ(wx,wy,16.6,P.tire);c.strokeStyle=P.tire2;c.lineWidth=1;c.beginPath();c.arc(cx,cy,15.6,Math.PI*1.1,Math.PI*1.6);c.stroke();
+    circ(wx,wy,12.6,P.rimDark);
+    for(let k=0;k<5;k++){const a0=k/5*Math.PI*2-Math.PI/2;for(const d of[-0.16,0.16]){const a=a0+d;c.strokeStyle=P.rim;c.lineWidth=1.8;c.beginPath();c.moveTo(cx+Math.cos(a)*3,cy+Math.sin(a)*3);c.lineTo(cx+Math.cos(a+d*0.6)*12,cy+Math.sin(a+d*0.6)*12);c.stroke()}}
+    c.strokeStyle=P.rim2;c.lineWidth=1;c.beginPath();c.arc(cx,cy,12.2,0,Math.PI*2);c.stroke();
+    c.fillStyle=P.rim;c.beginPath();c.arc(cx,cy,3,0,Math.PI*2);c.fill();c.fillStyle=P.rimDark;c.beginPath();c.arc(cx,cy,1.4,0,Math.PI*2);c.fill();
+    c.fillStyle='#5a1a1a';c.fillRect(cx+4,cy-6,2,4);   // тормозной суппорт
+  }
+}
+/* ---------- вид сзади: 128×96 — низкий широкий седан ---------- */
+function drawRear(c){
+  const P=PAL;
+  const fill=(a,col)=>{c.beginPath();c.moveTo(a[0],a[1]);for(let i=2;i<a.length;i+=2)c.lineTo(a[i],a[i+1]);c.closePath();c.fillStyle=col;c.fill()};
+  const mir=a=>{const o=[];for(let i=0;i<a.length;i+=2)o.push(128-a[i],a[i+1]);return o};
+  const both=(a,col)=>{fill(a,col);fill(mir(a),col)};
+  const R=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
+  c.fillStyle='rgba(0,0,0,.4)';c.beginPath();c.ellipse(64,92,62,3.5,0,0,Math.PI*2);c.fill();
+  R(9,72,18,20,P.tire);R(101,72,18,20,P.tire);R(10,73,4,18,P.tire2);R(114,73,4,18,P.tire2);
+  // кузов: узкая покатая кабина, широкие плечи
+  fill([42,8,86,8,94,12,106,30,118,36,123,46,124,58,122,72,117,82,11,82,6,72,4,58,5,46,10,36,22,30,34,12],P.body);
+  fill([42,8,86,8,90,10,38,10],P.hi2);
+  both([34,12,42,10,28,30,22,30],P.hi);
+  // плечи над колёсами — светлые блики
+  both([10,36,22,31,26,33,12,39],P.hi2);
+  // зеркала
+  both([3,28,10,26,11,31,4,32],P.body);both([4,31,10,31,10,33,5,33],'#0b0c0f');
+  // заднее стекло — пологое, неглубокое
+  fill([43,11,85,11,99,30,29,30],P.glass);fill([45,13,83,13,94,27,34,27],P.glass2);fill([49,13,57,13,44,27,37,27],P.refl);
+  R(56,12,16,1,'#e01b28');R(62,5,4,3,'#0b0c0f');R(63,4,2,1,'#0b0c0f');
+  // крышка багажника и утиный хвостик
+  fill([28,31,100,31,110,38,18,38],P.hi);
+  fill([18,38,110,38,111,40,17,40],P.spec);R(17,40,94,1,P.dark);
+  // фонари: тёмная рамка, тёмно-красное стекло, два кольца LED, хвост на крышке
+  both([4,41,44,42,50,47,42,52,6,51],P.outline);
+  both([5,42,43,43,48,47,41,51,7,50],P.tailDk);
+  both([6,43,40,44,44,46,40,48,7,47],P.tail);
+  for(const x of[15,27])for(const sx of[x,128-x]){c.strokeStyle=P.tailHi;c.lineWidth=1;c.beginPath();c.arc(sx,46,2.6,0,Math.PI*2);c.stroke()}
+  both([7,43,42,44,42,45,7,44],P.tailHi);
+  // эмблема и надпись
+  c.fillStyle=P.chrome;c.beginPath();c.ellipse(64,46,5,3.3,0,0,Math.PI*2);c.fill();c.fillStyle=P.mid;c.beginPath();c.ellipse(64,46,3.6,2.1,0,0,Math.PI*2);c.fill();
+  c.strokeStyle=P.chrome;c.lineWidth=1;c.beginPath();c.moveTo(61,47.5);c.lineTo(64,44.5);c.lineTo(67,47.5);c.stroke();
+  R(80,50,13,1,P.chrome2);R(35,50,10,1,P.chrome2);
+  // зазор багажника, бампер
+  R(34,53,60,1,P.dark);
+  fill([4,54,124,54,122,72,117,82,11,82,6,72],P.body);fill([4,54,124,54,124,57,4,57],P.hi);
+  // номер
+  R(39,58,50,12,'#111');R(40,59,48,10,'#f4f4f2');R(77,59,1,10,'#111');
+  for(const x of[42,48,53,58,64,69])R(x,61,4,6,'#1a1a1a');R(80,61,6,3,'#1a1a1a');R(80,65,6,2,'#1f5fbf');
+  both([6,63,15,63,15,67,6,67],P.tailDk);
+  // диффузор, выхлопы по краям
+  fill([14,74,114,74,116,82,12,82],'#1b1c1f');
+  for(const x of[24,104]){c.fillStyle=P.chrome;c.beginPath();c.ellipse(x,78,5,2.6,0,0,Math.PI*2);c.fill();c.fillStyle='#202226';c.beginPath();c.ellipse(x,78,3.6,1.6,0,0,Math.PI*2);c.fill()}
+}
+/* ---------- пиксельная обработка: жёсткие края и тёмный контур ---------- */
+function pixelize(cv,outline){const c=cv.getContext('2d');const im=c.getImageData(0,0,cv.width,cv.height);const d=im.data,W=cv.width,H=cv.height;
+  const solid=new Uint8Array(W*H);
+  for(let i=0;i<W*H;i++){const a=d[i*4+3];const shadow=d[i*4]<10&&d[i*4+1]<10&&d[i*4+2]<10&&a<140;
+    if(shadow){d[i*4+3]=a>40?100:0;continue}if(a<110){d[i*4+3]=0}else{d[i*4+3]=255;solid[i]=1}}
+  if(outline){const o=[0x1c,0x06,0x08];for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x;if(solid[i])continue;
+    if((x>0&&solid[i-1])||(x<W-1&&solid[i+1])||(y>0&&solid[i-W])||(y<H-1&&solid[i+W])){d[i*4]=o[0];d[i*4+1]=o[1];d[i*4+2]=o[2];d[i*4+3]=255}}}
+  c.putImageData(im,0,0);return cv}
+/* Машины друзей снаружи — пиксель-арт по фото. Профиль обводится в координатах фото и масштабируется. */
+function sideTraced(c,S){
+  const P=S.pal,T=S.T;const X=px=>(px-T.ox)*T.s+2,Y=py=>(py-T.oy)*T.s+2;
+  const pts=a=>{const o=[];for(let i=0;i<a.length;i+=2)o.push(X(a[i]),Y(a[i+1]));return o};
+  const path=a=>{const p=pts(a);c.beginPath();c.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)c.lineTo(p[i],p[i+1]);c.closePath()};
+  const fill=(a,col)=>{path(a);c.fillStyle=col;c.fill()};
+  const line=(a,col,w)=>{const p=pts(a);c.beginPath();c.moveTo(p[0],p[1]);for(let i=2;i<p.length;i+=2)c.lineTo(p[i],p[i+1]);c.strokeStyle=col;c.lineWidth=w||1;c.stroke()};
+  const circ=(px,py,r,col)=>{c.beginPath();c.arc(X(px),Y(py),r*T.s,0,Math.PI*2);c.fillStyle=col;c.fill()};
+  const H={X,Y,fill,line,circ,path,c,P,s:T.s};
+  // тень
+  const gx0=S.BODY.reduce((m,v,i)=>i%2?m:Math.min(m,v),1e9),gx1=S.BODY.reduce((m,v,i)=>i%2?m:Math.max(m,v),-1e9);
+  c.fillStyle='rgba(0,0,0,.35)';c.beginPath();c.ellipse((X(gx0)+X(gx1))/2,Y(S.ground),(X(gx1)-X(gx0))/2,3,0,0,Math.PI*2);c.fill();
+  fill(S.BODY,P.body);
+  c.save();path(S.BODY);c.clip();
+  const g=c.createLinearGradient(0,Y(S.belt),0,Y(S.sill));g.addColorStop(0,P.hi);g.addColorStop(0.25,P.hi);g.addColorStop(0.3,P.body);g.addColorStop(0.75,P.mid);g.addColorStop(1,P.dark);
+  c.fillStyle=g;c.fillRect(0,Y(S.belt)-1,400,200);
+  (S.hiPolys||[]).forEach(a=>fill(a,P.hi2));
+  (S.lines||[]).forEach(([a,col,w])=>line(a,P[col]||col,w));
+  if(S.inside)S.inside(H);
+  c.restore();
+  // арки
+  for(const w of S.wheels){c.save();c.beginPath();c.rect(0,0,400,Y(S.sill)-1);c.clip();circ(w[0],w[1],S.arch+3,P.deep);circ(w[0],w[1],S.arch,S.archCol||'#0c0c0e');c.restore()}
+  // стёкла
+  for(const gl of S.GL){fill(gl,P.glass);c.save();path(gl);c.clip();const p=pts(gl);const xs=p.filter((v,i)=>!(i%2)),ys=p.filter((v,i)=>i%2);
+    const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);c.fillStyle=P.glass2;c.fillRect(x0,(y0+y1)/2,x1-x0,y1);
+    c.fillStyle=P.refl;c.beginPath();const rx=x0+(x1-x0)*0.3;c.moveTo(rx,y1);c.lineTo(rx+(y1-y0)*0.6,y0);c.lineTo(rx+(y1-y0)*0.6+4,y0);c.lineTo(rx+4,y1);c.fill();c.restore()}
+  (S.pillars||[]).forEach(a=>fill(a,'#0b0c0f'));
+  (S.chrome||[]).forEach(a=>line(a,P.chrome,1.1));
+  (S.doors||[]).forEach(a=>line(a,P.dark,1));
+  for(const[hx,hy]of S.handles){c.fillStyle=S.handleCol||P.chrome2;c.fillRect(X(hx),Y(hy),6,1.6);c.fillStyle=P.chrome;c.fillRect(X(hx),Y(hy)-0.6,6,0.8)}
+  fill(S.mirror,P.body);c.fillStyle=P.hi2;c.fillRect(X(S.mirror[0])+1,Y(S.mirror[1])+0.5,(X(S.mirror[4])-X(S.mirror[0]))*0.8,1);
+  if(S.after)S.after(H);
+  // колёса
+  for(const w of S.wheels){const cx=X(w[0]),cy=Y(w[1]),r=w[2]*T.s,ri=r*0.74;
+    c.fillStyle=P.tire;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.fill();
+    c.strokeStyle='#2c2c30';c.lineWidth=1;c.beginPath();c.arc(cx,cy,r-1,Math.PI*1.1,Math.PI*1.6);c.stroke();
+    c.fillStyle=S.rimBack||'#3c4148';c.beginPath();c.arc(cx,cy,ri,0,Math.PI*2);c.fill();
+    S.rim(c,cx,cy,ri,P);
+    c.fillStyle=P.rim||'#c9ced4';c.beginPath();c.arc(cx,cy,Math.max(1.6,ri*0.22),0,Math.PI*2);c.fill();c.fillStyle='#3c4148';c.beginPath();c.arc(cx,cy,Math.max(0.8,ri*0.1),0,Math.PI*2);c.fill()}
+}
+const rimSpokes=(n,twin,col,w,dark)=>(c,cx,cy,r,P)=>{for(let k=0;k<n;k++){const a0=k/n*Math.PI*2-Math.PI/2;for(const d of(twin?[-0.14,0.14]:[0])){const a=a0+d;
+  c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(cx+Math.cos(a)*r*0.2,cy+Math.sin(a)*r*0.2);c.lineTo(cx+Math.cos(a+d*0.5)*r*0.96,cy+Math.sin(a+d*0.5)*r*0.96);c.stroke();
+  if(dark){c.strokeStyle=dark;c.lineWidth=w*0.4;c.beginPath();c.moveTo(cx+Math.cos(a)*r*0.3,cy+Math.sin(a)*r*0.3);c.lineTo(cx+Math.cos(a+d*0.5)*r*0.9,cy+Math.sin(a+d*0.5)*r*0.9);c.stroke()}}}
+  c.strokeStyle='#8e959d';c.lineWidth=1;c.beginPath();c.arc(cx,cy,r,0,Math.PI*2);c.stroke()};
+function pal(o){return Object.assign({chrome:'#dfe3e8',chrome2:'#9aa2ab',glass:'#16202c',glass2:'#24323f',refl:'#6f879e',tire:'#141416',rim:'#c9ced4',
+  lamp:'#eef3f7',lampIn:'#56616d',tail:'#c40d1a',tailHi:'#ff4f5a',tailDk:'#7a0810',outline:'#120608'},o)}
+
+/* ---------------- Haval H5, чёрный ---------------- */
+const HAVAL_SIDE={T:{ox:-8,oy:186,s:0.212},ground:612,belt:300,sill:548,arch:110,
+  pal:pal({body:'#121318',hi:'#262a32',hi2:'#3a3f49',spec:'#9aa4b2',mid:'#0d0e12',dark:'#07080a',deep:'#030304',outline:'#000000'}),
+  BODY:[0,505,0,420,2,345,12,325,60,312,200,303,305,300,380,262,455,205,480,198,560,194,900,193,1000,196,1062,202,1064,214,1072,222,1078,300,1080,470,1074,520,1060,540,980,545,290,548,70,540,20,525],
+  hiPolys:[[12,325,60,312,200,303,305,300,300,310,200,313,60,322,15,334],[480,198,560,194,900,193,1000,196,1000,201,560,199,482,203]],
+  lines:[[[30,332,150,322,300,318,600,318,1060,312],'spec',1],[[300,398,540,396,780,394],'rgba(200,212,228,.45)',1],[[60,450,240,446],'rgba(200,212,228,.35)',1],[[810,455,1060,450],'rgba(200,212,228,.35)',1],[[290,505,790,500],'spec',1]],
+  GL:[[372,312,420,262,470,222,532,222,532,316],[578,316,578,222,742,222,748,316],[848,310,846,228,1040,230,1052,300]],
+  pillars:[[532,220,578,220,578,318,532,318],[748,220,840,222,846,312,752,316]],
+  chrome:[[370,312,470,220,800,218],[782,222,812,312]],
+  doors:[[300,320,298,520],[540,318,540,535],[790,318,792,420]],
+  handles:[[460,330],[715,322]],handleCol:'#3a3f49',
+  mirror:[320,300,395,290,405,302,398,332,330,334],
+  wheels:[[157,520,92],[897,525,92]],
+  rim:rimSpokes(6,true,'#d6dade',2,'#2a2d32'),rimBack:'#1e2024',
+  after(H){const{fill,line,P}=H;
+    fill([290,335,335,330,345,450,300,455],'#060608');line([290,335,335,330,345,450],P.chrome2,1);          // накладка на крыле
+    fill([270,525,790,522,792,540,272,544],'#202226');line([270,525,790,522],'#4a4e56',1);                   // подножка
+    fill([990,194,1062,198,1068,210,1040,214,1000,206],'#050506');                                         // спойлер
+    fill([0,340,55,334,66,350,50,392,2,395],P.lamp);fill([6,348,50,342,44,384,8,386],P.lampIn);line([10,346,52,340],'#ffffff',1); // фара
+    fill([0,400,8,398,8,470,0,470],'#050506');fill([10,488,62,490,62,505,14,505],'#7d838b');              // решётка, защита
+    fill([1056,298,1080,296,1080,334,1058,332],P.outline);fill([1060,300,1080,299,1080,330,1062,329],P.tail);line([1064,304,1078,303],P.tailHi,1);
+    line([520,192,990,192],'#4b505a',1);
+  }};
+function rearHaval(c){const P=HAVAL_SIDE.pal;const h=rearKit(c);const{fill,both,R}=h;
+  c.fillStyle='rgba(0,0,0,.4)';c.beginPath();c.ellipse(64,102,62,3.2,0,0,Math.PI*2);c.fill();
+  R(7,80,22,22,P.tire);R(99,80,22,22,P.tire);R(8,81,4,20,'#2a2a2e');R(116,81,4,20,'#2a2a2e');
+  fill([12,8,116,8,121,14,123,30,124,46,124,88,118,96,10,96,4,88,4,46,5,30,7,14],P.body);
+  fill([8,3,120,3,122,10,6,10],'#050506');R(30,4,68,1,'#3a3f49');                       // спойлер
+  both([1,28,7,26,8,34,2,35],P.body);both([2,34,8,34,8,36,3,36],'#050506');             // зеркала
+  fill([14,11,114,11,116,38,12,38],P.glass);fill([16,13,112,13,113,34,15,34],P.glass2);fill([22,13,34,13,24,34,15,34],P.refl);
+  R(52,12,24,1,'#e01b28');R(62,32,2,6,'#050506');R(42,36,22,1,'#050506');                 // стоп, дворник
+  R(6,39,116,1,P.hi2);fill([6,40,122,40,122,70,6,70],P.body);R(6,40,116,2,P.hi);
+  // вертикальные фонари по углам
+  both([3,40,17,40,17,66,3,66],P.outline);both([4,41,16,41,16,65,4,65],P.tailDk);both([5,42,9,42,9,64,5,64],P.tail);both([10,42,15,42,15,46,10,46],P.tailHi);both([10,56,15,56,15,60,10,60],'#f2f2f2');
+  both([17,42,30,43,30,46,17,46],P.tail);both([17,43,29,44,29,45,17,44],P.tailHi);
+  R(30,48,68,2,P.chrome);R(30,50,68,1,'#5d636b');
+  c.fillStyle=P.chrome;c.beginPath();c.ellipse(64,44,6,2.6,0,0,Math.PI*2);c.fill();c.fillStyle=P.body;c.fillRect(60,43,8,2);
+  fill([40,53,88,53,88,68,40,68],'#08090b');R(42,55,44,11,'#111');R(43,56,42,9,'#f4f4f2');R(75,56,1,9,'#111');for(const x of[45,50,55,60,65,69])R(x,58,3,5,'#1a1a1a');R(78,58,5,3,'#1a1a1a');R(78,62,5,2,'#1f5fbf');
+  fill([4,72,124,72,124,92,118,96,10,96,4,92],'#18191d');R(4,72,120,1,'#33363d');
+  fill([28,86,100,86,96,95,32,95],'#9aa1aa');R(30,86,68,1,'#d6dade');
+  both([6,76,10,76,10,86,6,86],P.tailDk);both([16,80,24,80,24,83,16,83],'#cfd4d9');
+}
+
+/* ---------------- Opel Astra H седан, тёмно-синий ---------------- */
+const OPEL_SIDE={T:{ox:-6,oy:1024,s:0.2138},ground:1382,belt:1135,sill:1318,arch:90,
+  pal:pal({body:'#1c2246',hi:'#2c3570',hi2:'#43508f',spec:'#a4b0e0',mid:'#151a36',dark:'#0b0e22',deep:'#060814',outline:'#05060e'}),
+  BODY:[-4,1300,-6,1200,-2,1180,20,1165,120,1150,220,1137,300,1125,380,1080,470,1040,560,1027,700,1026,790,1038,860,1070,950,1106,1050,1112,1068,1120,1078,1140,1082,1210,1080,1290,1066,1312,960,1318,120,1320,10,1315],
+  hiPolys:[[20,1165,120,1150,220,1137,300,1125,298,1132,220,1144,120,1157,24,1172],[470,1040,560,1027,700,1026,790,1038,788,1042,700,1031,560,1032,472,1045],[950,1106,1050,1112,1068,1120,1064,1124,1048,1117,950,1112]],
+  lines:[[[40,1164,300,1150,600,1146,860,1142,1070,1138],'spec',1],[[42,1167,300,1153,600,1149,860,1145,1070,1141],'dark',1],[[290,1262,790,1260],'dark',1],[[290,1259,790,1257],'hi2',1],[[120,1212,260,1208],'hi2',1]],
+  GL:[[372,1140,420,1095,472,1052,580,1038,582,1136],[604,1135,604,1036,705,1036,770,1042,798,1062,806,1126],[812,1125,806,1058,846,1080,905,1108,880,1122]],
+  pillars:[[582,1036,604,1036,604,1137,582,1137]],
+  chrome:[[378,1141,812,1126]],
+  doors:[[300,1135,300,1300],[595,1137,595,1315],[812,1127,815,1200,782,1250]],
+  handles:[[500,1170],[748,1162]],handleCol:'#2c3570',
+  mirror:[305,1110,365,1098,382,1110,376,1150,318,1152],
+  wheels:[[172,1305,75],[870,1305,75]],rim:rimSpokes(6,true,'#cfd4d9',2.2),rimBack:'#4a4f57',
+  after(H){const{fill,line,P}=H;
+    fill([-5,1172,30,1165,85,1160,70,1185,10,1196],P.lamp);fill([5,1172,60,1166,52,1182,10,1190],P.lampIn);line([10,1170,70,1163],'#ffffff',1);
+    fill([-6,1200,2,1200,2,1232,-6,1232],'#08090c');fill([10,1275,60,1275,58,1290,12,1290],'#08090c');
+    fill([996,1146,1062,1138,1082,1150,1084,1204,1040,1208,1002,1188],P.outline);fill([1000,1148,1062,1140,1080,1151,1082,1200,1040,1205,1005,1186],P.tail);
+    fill([1040,1158,1072,1155,1074,1176,1042,1179],'#eef1f4');line([1006,1160,1036,1156],P.tailHi,1);
+    fill([1040,1290,1078,1290,1074,1300,1044,1300],P.tailDk);
+  }};
+function rearOpel(c){const P=OPEL_SIDE.pal;const h=rearKit(c);const{fill,both,R}=h;
+  c.fillStyle='rgba(0,0,0,.4)';c.beginPath();c.ellipse(64,90,62,3.2,0,0,Math.PI*2);c.fill();
+  R(9,70,18,20,P.tire);R(101,70,18,20,P.tire);
+  fill([40,8,88,8,95,12,106,30,118,35,123,44,124,58,122,72,117,80,11,80,6,72,4,58,5,44,10,35,22,30,33,12],P.body);
+  fill([40,8,88,8,92,10,36,10],P.hi2);both([33,12,40,10,28,30,22,30],P.hi);
+  both([3,27,10,25,11,30,4,31],P.body);both([4,30,10,30,10,32,5,32],'#06070c');
+  fill([42,11,86,11,99,30,29,30],P.glass);fill([44,13,84,13,94,27,34,27],P.glass2);fill([48,13,56,13,44,27,37,27],P.refl);R(56,12,16,1,'#e01b28');
+  fill([28,31,100,31,108,40,20,40],P.hi);R(20,40,88,1,P.spec);R(18,41,92,1,P.dark);
+  // крупные треугольные фонари с белой секцией
+  both([4,40,36,41,32,57,6,57],P.outline);both([5,41,35,42,31,56,7,56],P.tail);both([8,44,20,44,20,51,8,51],'#eef1f4');both([22,44,32,44,30,51,22,51],'#a60a16');R(6,42,26,1,P.tailHi);R(96,42,26,1,P.tailHi);
+  // хромовая планка с эмблемой над номером
+  R(38,46,52,2,P.chrome);c.fillStyle=P.chrome;c.beginPath();c.arc(64,45,3.4,0,Math.PI*2);c.fill();c.fillStyle=P.dark;c.beginPath();c.arc(64,45,2.2,0,Math.PI*2);c.fill();R(61.5,44.5,5,1,P.chrome);
+  fill([40,49,88,49,88,61,40,61],'#0a0c18');R(41,50,46,10,'#111');R(42,51,44,8,'#f4f4f2');R(75,51,1,8,'#111');for(const x of[44,49,54,59,64,68])R(x,53,3,4,'#1a1a1a');R(78,53,5,2,'#1a1a1a');R(78,56,5,2,'#1f5fbf');
+  R(30,62,68,1,P.dark);
+  fill([4,63,124,63,122,72,117,80,11,80,6,72],P.body);R(4,63,120,2,P.hi);
+  both([7,66,15,66,15,69,7,69],P.tailDk);fill([12,74,116,74,117,80,11,80],'#0c0d12');
+  c.fillStyle=P.chrome2;c.beginPath();c.ellipse(100,77,4,1.8,0,0,Math.PI*2);c.fill();
+}
+
+/* ---------------- Mazda CX-9 2017, коричнево-бронзовый ---------------- */
+const CX9_SIDE={T:{ox:100,oy:1214,s:0.34},ground:1466,belt:1282,sill:1424,arch:66,archCol:'#101012',
+  pal:pal({body:'#56493d',hi:'#716255',hi2:'#8c7d6f',spec:'#cbbfaf',mid:'#463a30',dark:'#2d251f',deep:'#1a1512',outline:'#120d0a'}),
+  BODY:[118,1400,115,1330,120,1312,140,1305,220,1290,290,1280,350,1248,420,1222,520,1217,650,1221,700,1228,730,1240,755,1265,768,1290,772,1310,772,1395,760,1424,140,1424],
+  hiPolys:[[140,1305,220,1290,290,1280,288,1288,220,1297,142,1312],[420,1222,520,1217,650,1221,700,1228,698,1232,650,1225,520,1222,422,1227]],
+  lines:[[[150,1312,300,1300,450,1300,600,1296,700,1292,770,1296],'spec',1],[[150,1314,300,1302,450,1302,600,1298,700,1294,770,1298],'dark',1],[[300,1372,460,1366,560,1356],'hi2',1],[[300,1376,460,1370,560,1360],'dark',1]],
+  GL:[[298,1286,350,1250,425,1228,432,1228,432,1286],[446,1286,446,1225,545,1224,556,1284],[564,1283,556,1228,612,1231,648,1262,640,1278]],
+  pillars:[[432,1226,446,1226,446,1287,432,1287],[546,1224,563,1226,564,1284,556,1284]],
+  chrome:[[296,1287,350,1248,425,1225,612,1228,652,1262,642,1281],[296,1288,642,1281],[245,1405,520,1405]],
+  doors:[[295,1290,290,1408],[440,1288,440,1410],[560,1285,568,1340,545,1375]],
+  handles:[[370,1312],[548,1302]],
+  mirror:[266,1272,296,1268,305,1278,300,1300,272,1300],
+  wheels:[[152,1408,56],[610,1410,56]],rim:rimSpokes(5,true,'#c3c8ce',1.8,'#6d747c'),
+  inside(H){const{fill}=H;fill([110,1410,780,1408,780,1430,110,1430],'#18181a')},
+  after(H){const{fill,line,circ,P,c,X,Y}=H;
+    fill([118,1318,140,1308,192,1312,180,1324,125,1326],P.lamp);fill([124,1316,170,1314,166,1320,128,1322],P.lampIn);line([126,1314,186,1312],'#ffffff',1);
+    fill([115,1326,122,1326,124,1370,116,1368],'#0b0c0f');line([118,1330,150,1334,180,1330],P.chrome,1);
+    fill([120,1385,155,1388,152,1400,122,1398],'#0b0c0f');line([124,1392,150,1393],P.chrome2,1);
+    fill([696,1285,756,1282,773,1290,773,1305,704,1303],P.outline);fill([700,1287,755,1285,771,1292,771,1302,706,1300],P.tail);line([704,1290,768,1291],P.tailHi,1);
+    fill([752,1378,771,1378,771,1388,754,1388],P.tailDk);fill([738,1418,768,1416,766,1426,740,1426],P.chrome2);
+    c.strokeStyle=P.dark;c.lineWidth=1;c.beginPath();c.arc(X(655),Y(1312),12*0.34,0,Math.PI*2);c.stroke();
+    fill([690,1225,742,1234,748,1244,700,1238],P.dark);       // козырёк-спойлер
+  }};
+function rearCx9(c){const P=CX9_SIDE.pal;const h=rearKit(c);const{fill,both,R}=h;
+  c.fillStyle='rgba(0,0,0,.4)';c.beginPath();c.ellipse(64,98,62,3.2,0,0,Math.PI*2);c.fill();
+  R(8,76,20,22,P.tire);R(100,76,20,22,P.tire);
+  fill([18,8,110,8,117,14,121,32,124,44,124,80,118,92,10,92,4,80,4,44,7,32,11,14],P.body);
+  fill([14,5,114,5,118,12,10,12],P.mid);R(16,5,96,1,P.hi2);
+  both([2,30,9,28,10,34,3,35],P.body);both([3,34,9,34,9,36,4,36],'#0b0c0f');
+  fill([20,12,108,12,112,35,16,35],P.glass);fill([22,14,106,14,109,32,19,32],P.glass2);fill([28,14,38,14,28,32,20,32],P.refl);R(54,13,20,1,'#e01b28');R(62,30,2,5,'#0b0c0f');
+  R(10,36,108,2,P.hi2);fill([6,38,122,38,122,72,6,72],P.body);R(6,38,116,2,P.hi);
+  // фонари-«крылья», соединённые хромом
+  both([4,40,36,41,42,46,32,50,6,49],P.outline);both([5,41,35,42,40,46,31,49,7,48],P.tailDk);both([7,42,33,43,37,46,30,47,8,46],P.tail);R(8,43,26,1,P.tailHi);R(94,43,26,1,P.tailHi);
+  R(36,47,56,2,P.chrome);R(36,49,56,1,'#5d636b');
+  c.fillStyle=P.chrome;c.beginPath();c.ellipse(64,44,5,3.3,0,0,Math.PI*2);c.fill();c.fillStyle=P.mid;c.beginPath();c.ellipse(64,44,3.6,2.1,0,0,Math.PI*2);c.fill();
+  c.strokeStyle=P.chrome;c.lineWidth=1;c.beginPath();c.moveTo(61,45.5);c.lineTo(64,42.5);c.lineTo(67,45.5);c.stroke();
+  fill([40,53,88,53,88,67,40,67],P.dark);R(42,55,44,11,'#111');R(43,56,42,9,'#f4f4f2');R(75,56,1,9,'#111');for(const x of[45,50,55,60,65,69])R(x,58,3,5,'#1a1a1a');R(78,58,5,3,'#1a1a1a');R(78,62,5,2,'#1f5fbf');
+  fill([4,73,124,73,124,84,118,92,10,92,4,84],'#18181a');R(4,73,120,1,'#33302c');
+  fill([30,82,98,82,96,88,32,88],'#8d939a');
+  both([6,76,13,76,13,80,6,80],P.tailDk);
+  for(const x of[22,106]){c.fillStyle=P.chrome;c.beginPath();c.ellipse(x,87,5,2.4,0,0,Math.PI*2);c.fill();c.fillStyle='#202226';c.beginPath();c.ellipse(x,87,3.6,1.4,0,0,Math.PI*2);c.fill()}
+}
+function rearKit(c){
+  const fill=(a,col)=>{c.beginPath();c.moveTo(a[0],a[1]);for(let i=2;i<a.length;i+=2)c.lineTo(a[i],a[i+1]);c.closePath();c.fillStyle=col;c.fill()};
+  const mir=a=>{const o=[];for(let i=0;i<a.length;i+=2)o.push(128-a[i],a[i+1]);return o};
+  return{fill,both:(a,col)=>{fill(a,col);fill(mir(a),col)},R:(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)}};
+}
+/* Салоны с места водителя. Каждая функция рисует слой: L='s' — неподвижная панель (кэшируется),
+   L='d' — то, что двигается: стрелки, цифры, руль. Возвращает прямоугольник салонного зеркала. */
+function cabKit(c){
+  const R=(x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(Math.round(x),Math.round(y),Math.round(w),Math.round(h))};
+  const poly=(col,...a)=>{c.beginPath();c.moveTo(a[0],a[1]);for(let i=2;i<a.length;i+=2)c.lineTo(a[i],a[i+1]);c.closePath();c.fillStyle=col;c.fill()};
+  const rr=(x,y,w,h,r,col)=>{c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();c.fillStyle=col;c.fill()};
+  const circ=(x,y,r,col)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.fillStyle=col;c.fill()};
+  const ring=(x,y,r,col,w)=>{c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.strokeStyle=col;c.lineWidth=w||1;c.stroke()};
+  const txt=(s,x,y,size,col,al,font)=>{c.font=size+'px '+(font||'"Pixelify Sans",monospace');c.textAlign=al||'center';c.textBaseline='top';c.fillStyle=col;c.fillText(s,x,y)};
+  const vg=(y1,y2,a,b)=>{const g=c.createLinearGradient(0,y1,0,y2);g.addColorStop(0,a);g.addColorStop(1,b);return g};
+  const face=(x,y,r,n,red,ring1,ring2,faceCol,tick)=>{circ(x,y,r+2,ring1);circ(x,y,r+1,ring2);circ(x,y,r,faceCol);
+    for(let i=0;i<=n;i++){const a=Math.PI*0.75+i/n*Math.PI*1.5;c.strokeStyle=(red&&i>=n-1)?'#ff3030':tick;c.lineWidth=1;c.beginPath();c.moveTo(x+Math.cos(a)*(r-3.5),y+Math.sin(a)*(r-3.5));c.lineTo(x+Math.cos(a)*(r-1),y+Math.sin(a)*(r-1));c.stroke()}};
+  const needle=(x,y,r,v,col)=>{const a=Math.PI*0.75+Math.max(0,Math.min(1,v))*Math.PI*1.5;c.strokeStyle=col;c.lineWidth=1.6;c.beginPath();c.moveTo(x-Math.cos(a)*2,y-Math.sin(a)*2);c.lineTo(x+Math.cos(a)*(r-2),y+Math.sin(a)*(r-2));c.stroke();circ(x,y,2,'#2a2a2a')};
+  const vent=(x,y,w,h,ring,rad)=>{rr(x-1.5,y-1.5,w+3,h+3,rad+1,ring);rr(x,y,w,h,rad,'#0b0c0e');for(let l=2;l<h-1;l+=2)R(x+2,y+l,w-4,1,'#2b2d31');R(x+w/2-0.5,y+1,1,h-2,'#3f4146')};
+  const rim=(Rr,L,Hi,Hi2)=>{c.strokeStyle='#3a3b40';c.lineWidth=15;c.beginPath();c.arc(0,0,Rr-7,0,Math.PI*2);c.stroke();
+    c.strokeStyle=L;c.lineWidth=13;c.beginPath();c.arc(0,0,Rr-7,0,Math.PI*2);c.stroke();
+    c.strokeStyle=Hi;c.lineWidth=2;c.beginPath();c.arc(0,0,Rr-10,Math.PI*1.18,Math.PI*1.82);c.stroke();
+    c.strokeStyle=Hi2;c.lineWidth=1;c.beginPath();c.arc(0,0,Rr-2,Math.PI*1.25,Math.PI*1.75);c.stroke()};
+  const roofPillars=(head,head2,headDk,W)=>{c.fillStyle=vg(0,14,head,head2);c.beginPath();c.moveTo(0,0);c.lineTo(W,0);c.lineTo(W,9);c.quadraticCurveTo(W*0.5,16,0,9);c.closePath();c.fill();
+    const cx=W*0.37;poly(head2,30,7,cx+46,9,cx+44,16,34,15);R(36,12,cx+4,1,headDk);poly(head2,W*0.75,9,W-26,7,W-28,14,W*0.76,15);
+    poly(head,0,0,34,0,14,122,0,124);poly(head2,30,0,34,0,15,122,12,122);poly(head,W-22,0,W,0,W,120,W-6,122);poly(head2,W-22,0,W-19,0,W-5,120,W-6,122)};
+  const mirrorFrameless=(mx)=>{R(mx+10,4,3,8,'#0c0c0e');rr(mx-36,10,72,21,6,'#0c0c0e');c.fillStyle=vg(12,29,'#c9d9e6','#8e9aa3');rr(mx-34,12,68,16,5,c.fillStyle);R(mx-34,22,68,6,'#7a7f84');
+    for(let i=0;i<5;i++)R(mx-14+i*7,29,3,1,i===2?'#9acd32':'#4a4c50');return{x:mx-34,y:12,w:68,h:16}};
+  const polyO=(col,...a)=>{poly(col,...a);c.strokeStyle='#4a4b52';c.lineWidth=1;c.stroke()};
+  return{polyO,R,poly,rr,circ,ring,txt,vg,face,needle,vent,rim,roofPillars,mirrorFrameless};
+}
+
+/* ======================= Mazda 6 ======================= */
+function cabM6(c,W,H,st,L){
+  const k=cabKit(c),{polyO,R,poly,rr,circ,ring,txt,vg,face,needle,vent,rim}=k;const S=L!=='d',D=L!=='s';
+  const cx=Math.round(W*0.37),sx=Math.round(W*0.665),mx=Math.round(W*0.69);
+  const P={chrome:'#dfe3e8',chrome2:'#a3aab2',chrome3:'#6d747c',brown:'#3b2528',stitch:'#7a5a5e',leather:'#171719'};
+  let mir={x:mx-34,y:12,w:68,h:16};
+  if(S){
+    k.roofPillars('#cfcbc4','#b9b5ad','#9c978e',W);mir=k.mirrorFrameless(mx);
+    c.fillStyle=vg(102,130,'#353539','#2b2b2f');c.beginPath();c.moveTo(0,130);c.quadraticCurveTo(W*0.42,98,W,118);c.lineTo(W,H);c.lineTo(0,H);c.closePath();c.fill();
+    c.strokeStyle='rgba(255,255,255,.1)';c.lineWidth=1;c.beginPath();c.moveTo(0,130);c.quadraticCurveTo(W*0.42,98,W,118);c.stroke();
+    R(0,140,W,H-140,'#1d1b1d');
+    poly(P.brown,cx+64,150,W,146,W,160,cx+70,164);for(let x=cx+70;x<W;x+=4){R(x,151-(x-cx)*0.012,2,1,P.stitch);R(x,161-(x-cx)*0.012,2,1,P.stitch)}
+    c.strokeStyle=P.chrome;c.lineWidth=2;c.beginPath();c.moveTo(cx+50,138);c.quadraticCurveTo(sx-20,128,sx+46,140);c.quadraticCurveTo(W*0.86,133,W,136);c.stroke();
+    R(W*0.84,170,W*0.16,2,'#151315');
+    poly('#252224',0,128,40,134,32,H,0,H);R(0,150,36,2,P.chrome2);poly(P.brown,0,154,35,155,34,170,0,168);rr(4,180,22,9,2,'#0c0c0e');for(let i=0;i<3;i++)R(7+i*6,182,4,4,'#3a3b40');
+    rr(16,124,26,16,6,P.chrome2);rr(18,126,22,12,5,'#0c0c0e');for(let y=128;y<137;y+=2)R(20,y,18,1,'#2b2c30');
+    circ(cx+58,128,5.5,P.chrome);circ(cx+58,128,4.2,'#191a1d');R(cx+56,127,4,1,'#e33');
+    const scW=72,scH=40,scX=sx-scW/2,scY=78;poly('#0c0c0e',sx-14,scY+scH,sx+14,scY+scH,sx+10,scY+scH+8,sx-10,scY+scH+8);rr(scX,scY,scW,scH,4,'#0c0c0e');
+    c.fillStyle=vg(scY+3,scY+scH-3,'#1c2736','#121a24');c.fillRect(scX+3,scY+3,scW-6,scH-6);txt('FM 101.2',scX+6,scY+5,7,'#9fb3c6','left');txt('12:01',scX+scW-6,scY+5,7,'#e8eef4','right');txt('Радио',scX+6,scY+13,8,'#fff','left');
+    for(let i=0;i<2;i++)R(scX+6,scY+24+i*4,26+i*8,1,'#9fb3c6');R(scX+44,scY+15,20,14,'#26364a');R(scX+3,scY+scH-9,scW-6,6,'#0e141c');R(scX+3,scY+scH-9,10,6,'#e6732a');for(let i=0;i<7;i++)R(scX+17+i*7,scY+scH-7,3,2,'#c8d2dc');
+    const vw=96,vx=sx-vw/2,vy=138;c.strokeStyle=P.chrome;c.lineWidth=2;c.beginPath();c.moveTo(vx,vy+8);c.lineTo(vx+8,vy);c.lineTo(vx+vw-8,vy);c.lineTo(vx+vw,vy+8);c.lineTo(vx+vw-6,vy+15);c.lineTo(vx+6,vy+15);c.closePath();c.stroke();
+    poly('#0c0c0e',vx+3,vy+8,vx+9,vy+2,vx+vw-9,vy+2,vx+vw-3,vy+8,vx+vw-7,vy+13,vx+7,vy+13);for(let y=vy+4;y<vy+13;y+=2){R(vx+9,y,vw/2-20,1,'#2e3034');R(sx+11,y,vw/2-20,1,'#2e3034')}
+    rr(sx-11,vy+2,22,11,2,'#1a1a1c');poly('#d6282a',sx,vy+4,sx+4,vy+11,sx-4,vy+11);poly('#fff',sx,vy+6,sx+2,vy+10,sx-2,vy+10);
+    rr(sx-44,157,88,7,2,'#141416');for(let i=0;i<6;i++){R(sx-40+i*14,158,10,4,'#2a2b2f');R(sx-37+i*14,159,4,1,i%2?'#ffb347':'#8a5a20')}
+    const ky=167;rr(sx-48,ky,96,22,3,'#121214');for(const kx of[sx-36,sx+36]){circ(kx,ky+11,8,P.chrome);circ(kx,ky+11,6.4,'#1d1d20');ring(kx,ky+11,4.5,'#3a3b40')}
+    rr(sx-24,ky+4,48,14,2,'#05070a');txt('22.0',sx-12,ky+7,8,'#ffb347');txt('22.0',sx+12,ky+7,8,'#ffb347');R(sx-48,ky+24,96,2,P.chrome2);
+    poly(P.brown,sx-44,H,sx-34,196,sx+34,196,sx+44,H);rr(sx-24,197,48,H-197+4,4,'#141416');c.strokeStyle=P.chrome2;c.lineWidth=1;c.strokeRect(sx-22.5,198.5,45,H-198);
+    rr(sx-7,203,14,16,4,'#1f1f22');R(sx-7,207,14,2,P.chrome);rr(sx-6,198,12,8,4,'#2b2b2f');for(let i=0;i<4;i++)R(sx-18,201+i*3,3,2,i===3?'#e8eef4':'#5d6066');
+    c.fillStyle='#353539';c.beginPath();c.ellipse(cx,124,58,24,0,Math.PI,0);c.fill();c.fillStyle='#141416';c.beginPath();c.ellipse(cx,126,54,20,0,Math.PI,0);c.fill();R(cx-54,126,108,10,'#141416');
+    face(cx-34,126,15,8,true,P.chrome2,P.chrome3,'#0b0b0d','#e8e8e8');face(cx,122,20,12,false,P.chrome2,P.chrome3,'#0b0b0d','#e8e8e8');
+    circ(cx+34,126,17,P.chrome2);circ(cx+34,126,16,P.chrome3);circ(cx+34,126,15,'#0b0b0d');rr(cx+25,117,18,17,2,'#101820');R(cx-28,131,2,2,'#ff7a1a');
+  }
+  if(D){
+    needle(cx-34,126,15,st.rpm/7000,'#ff2a2a');needle(cx,122,20,st.kmh/240,'#ff2a2a');txt('D'+st.gear,cx+34,118,7,'#e8eef4');txt(String(Math.round(st.kmh)),cx+34,126,7,'#9fd6ff');
+    const wy=194,Rr=66;c.save();c.translate(cx,wy);c.rotate((st.steer||0)*1.2);
+    poly(P.leather,-Rr+6,-10,-22,-14,-22,10,-Rr+8,8);poly(P.leather,Rr-6,-10,22,-14,22,10,Rr-8,8);
+    poly(P.chrome2,-Rr+8,6,-24,4,-24,9,-Rr+9,11);poly(P.chrome2,Rr-8,6,24,4,24,9,Rr-9,11);poly(P.chrome,-Rr+8,6,-24,4,-24,5.5,-Rr+8,7.5);poly(P.chrome,Rr-8,6,24,4,24,5.5,Rr-8,7.5);
+    for(const s of[-1,1]){rr(s<0?-44:30,-11,14,14,3,'#222327');for(const[bx,by]of[[0,0],[7,0],[0,7],[7,7]])R((s<0?-43:31)+bx,-10+by,5,5,'#3a3b41')}
+    poly(P.chrome,-14,10,-8,10,-3,Rr-6,-10,Rr-6);poly(P.chrome,14,10,8,10,3,Rr-6,10,Rr-6);poly('#101012',-8,12,8,12,3,Rr-6,-3,Rr-6);
+    rr(-24,-20,48,36,12,'#1d1e21');c.strokeStyle=P.chrome;c.lineWidth=2;c.beginPath();c.ellipse(0,-3,9,6,0,0,Math.PI*2);c.stroke();c.lineWidth=1.2;c.beginPath();c.moveTo(-5,0);c.quadraticCurveTo(0,-8,5,0);c.stroke();
+    rim(Rr,P.leather,'#3c3d42','#55565c');c.restore();
+  }
+  return mir;
+}
+
+/* ======================= Mazda CX-9 ======================= */
+function cabCx9(c,W,H,st,L){
+  const k=cabKit(c),{polyO,R,poly,rr,circ,ring,txt,vg,face,needle,vent,rim}=k;const S=L!=='d',D=L!=='s';
+  const cx=Math.round(W*0.37),sx=Math.round(W*0.665),mx=Math.round(W*0.69);
+  const P={chrome:'#e2e6ea',chrome2:'#a6adb5',chrome3:'#6d747c',leather:'#18181a'};
+  let mir={x:mx-34,y:12,w:68,h:16};
+  if(S){
+    k.roofPillars('#d4d2cc','#c1beb7','#a29e96',W);mir=k.mirrorFrameless(mx);
+    c.fillStyle=vg(100,130,'#2e2f33','#232427');c.beginPath();c.moveTo(0,128);c.quadraticCurveTo(W*0.42,96,W,114);c.lineTo(W,H);c.lineTo(0,H);c.closePath();c.fill();
+    c.strokeStyle='rgba(255,255,255,.1)';c.lineWidth=1;c.beginPath();c.moveTo(0,128);c.quadraticCurveTo(W*0.42,96,W,114);c.stroke();R(0,146,W,H-146,'#1b1b1e');
+    // большая хромовая дуга над дефлекторами — фирменная черта CX-9
+    c.strokeStyle=P.chrome;c.lineWidth=3;c.beginPath();c.moveTo(cx+48,150);c.quadraticCurveTo(sx-30,124,sx,146);c.quadraticCurveTo(sx+40,124,W,134);c.stroke();
+    c.strokeStyle='rgba(255,255,255,.7)';c.lineWidth=1;c.beginPath();c.moveTo(cx+48,149);c.quadraticCurveTo(sx-30,123,sx,145);c.stroke();
+    poly('#26272b',0,126,40,132,32,H,0,H);R(0,146,36,2,P.chrome2);poly('#3a3633',0,152,35,153,34,170,0,168);rr(4,180,22,9,2,'#0c0c0e');for(let i=0;i<3;i++)R(7+i*6,182,4,4,'#3a3b40');
+    k.vent(16,122,26,14,P.chrome2,5);
+    circ(cx+58,126,5.5,P.chrome);circ(cx+58,126,4.2,'#191a1d');R(cx+56,125,4,1,'#e33');
+    const scW=66,scH=38,scX=sx-scW/2,scY=76;poly('#0c0c0e',sx-12,scY+scH,sx+12,scY+scH,sx+8,scY+scH+6,sx-8,scY+scH+6);rr(scX,scY,scW,scH,3,'#0c0c0e');
+    c.fillStyle=vg(scY+3,scY+scH-3,'#1f2b3a','#121a24');c.fillRect(scX+3,scY+3,scW-6,scH-6);
+    for(let i=0;i<5;i++){const tx=scX+8+i*12;ring(tx,scY+22,4.5,'#d0d8e0',1);circ(tx,scY+22,3.2,i===2?'#c0392b':'#2a3446')}txt('Связь',sx,scY+29,6,'#e8eef4');txt('16:59',scX+scW-5,scY+4,6,'#e8eef4','right');
+    const vw=86,vx=sx-vw/2,vy=146;rr(vx-2,vy-2,vw+4,16,4,P.chrome);rr(vx,vy,vw,12,3,'#0c0c0e');for(let y=vy+2;y<vy+11;y+=2){R(vx+4,y,vw/2-12,1,'#2e3034');R(sx+8,y,vw/2-12,1,'#2e3034')}
+    rr(sx-6,vy+1,12,10,2,'#1a1a1c');poly('#d6282a',sx,vy+3,sx+4,vy+9,sx-4,vy+9);
+    const ky=166;rr(sx-48,ky,96,20,3,'#121214');R(sx-46,ky+1,92,1,P.chrome2);for(const kx of[sx-36,sx+36]){circ(kx,ky+10,7.5,P.chrome);circ(kx,ky+10,6,'#1d1d20')}
+    rr(sx-22,ky+4,44,12,2,'#05070a');txt('25.0',sx-10,ky+6,7,'#ffb347');txt('25.0',sx+11,ky+6,7,'#ffb347');
+    // высокий тоннель в хромовой рамке
+    rr(sx-30,190,60,H-188,5,P.chrome2);rr(sx-28,192,56,H-190,4,'#121214');rr(sx-8,200,16,20,5,'#1f1f22');R(sx-8,204,16,2,P.chrome);rr(sx-7,194,14,9,4,'#2b2b2f');
+    for(let i=0;i<4;i++)R(sx-22,198+i*3,3,2,i===3?'#e8eef4':'#5d6066');
+    c.fillStyle=vg(H-34,H,'#d8d5ce','#b5b1a8');c.beginPath();c.moveTo(W*0.9,H);c.quadraticCurveTo(W*0.89,H-30,W,H-36);c.lineTo(W,H);c.closePath();c.fill();
+    c.fillStyle='#303135';c.beginPath();c.ellipse(cx,122,58,24,0,Math.PI,0);c.fill();c.fillStyle='#121214';c.beginPath();c.ellipse(cx,124,54,20,0,Math.PI,0);c.fill();R(cx-54,124,108,10,'#121214');
+    face(cx-33,124,14,8,true,P.chrome,P.chrome3,'#0b0b0d','#ececec');face(cx,120,20,12,false,P.chrome,P.chrome3,'#0b0b0d','#ececec');
+    circ(cx+33,124,16,P.chrome);circ(cx+33,124,15,P.chrome3);circ(cx+33,124,14,'#0b0b0d');rr(cx+25,116,16,15,2,'#101820');
+  }
+  if(D){
+    needle(cx-33,124,14,st.rpm/7000,'#ff2a2a');needle(cx,120,20,st.kmh/240,'#ff2a2a');txt('D'+st.gear,cx+33,116,7,'#e8eef4');txt(String(Math.round(st.kmh)),cx+33,124,7,'#9fd6ff');
+    // руль нового образца: круглая ступица, хромовое кольцо по нижней спице
+    const wy=194,Rr=66;c.save();c.translate(cx,wy);c.rotate((st.steer||0)*1.2);
+    polyO(P.leather,-Rr+6,-8,-22,-12,-22,12,-Rr+8,10);polyO(P.leather,Rr-6,-8,22,-12,22,12,Rr-8,10);
+    c.strokeStyle=P.chrome;c.lineWidth=2;c.beginPath();c.moveTo(-Rr+8,9);c.quadraticCurveTo(-26,10,-14,26);c.lineTo(-8,Rr-6);c.moveTo(Rr-8,9);c.quadraticCurveTo(26,10,14,26);c.lineTo(8,Rr-6);c.stroke();
+    poly(P.leather,-14,14,14,14,8,Rr-6,-8,Rr-6);
+    for(const s of[-1,1]){rr(s<0?-46:32,-9,14,14,3,'#232428');for(const[bx,by]of[[0,0],[7,0],[0,7],[7,7]])R((s<0?-45:33)+bx,-8+by,5,5,'#3a3b41')}
+    circ(0,-2,21,'#1f2023');ring(0,-2,21,'#2c2d31',1);c.strokeStyle=P.chrome;c.lineWidth=2;c.beginPath();c.ellipse(0,-2,9,6,0,0,Math.PI*2);c.stroke();c.lineWidth=1.2;c.beginPath();c.moveTo(-5,1);c.quadraticCurveTo(0,-7,5,1);c.stroke();
+    rim(Rr,P.leather,'#3c3d42','#55565c');c.restore();
+  }
+  return mir;
+}
+
+/* ======================= Haval H5 ======================= */
+function cabHaval(c,W,H,st,L){
+  const k=cabKit(c),{polyO,R,poly,rr,circ,ring,txt,vg,needle,rim}=k;const S=L!=='d',D=L!=='s';
+  const cx=Math.round(W*0.37),sx=Math.round(W*0.665),mx=Math.round(W*0.69);
+  const P={chrome:'#e2e6ea',chrome2:'#a6adb5',leather:'#141416'};
+  let mir={x:mx-34,y:12,w:68,h:16};
+  // шестигранник для дефлекторов
+  const hex=(x,y,w,h,col)=>poly(col,x,y+h/2,x+h/2,y,x+w-h/2,y,x+w,y+h/2,x+w-h/2,y+h,x+h/2,y+h);
+  if(S){
+    k.roofPillars('#55565b','#46474c','#36373b',W);mir=k.mirrorFrameless(mx);
+    // плоская высокая торпеда
+    c.fillStyle=vg(108,132,'#2a2b2f','#1d1e21');c.beginPath();c.moveTo(0,126);c.quadraticCurveTo(W*0.45,110,W,116);c.lineTo(W,H);c.lineTo(0,H);c.closePath();c.fill();
+    c.strokeStyle='rgba(255,255,255,.1)';c.lineWidth=1;c.beginPath();c.moveTo(0,126);c.quadraticCurveTo(W*0.45,110,W,116);c.stroke();
+    R(0,150,W,H-150,'#151618');
+    // дверь: хромовая «волна» и серая вставка
+    poly('#1c1d20',0,124,42,130,34,H,0,H);c.strokeStyle=P.chrome;c.lineWidth=2;c.beginPath();c.moveTo(0,160);c.quadraticCurveTo(20,146,42,142);c.stroke();poly('#3a3b40',0,166,30,156,32,172,0,180);
+    rr(4,186,24,10,2,'#0b0b0d');for(let i=0;i<3;i++)R(7+i*7,188,5,5,'#3a3b40');
+    hex(14,128,26,12,P.chrome2);hex(16,130,22,8,'#0b0c0e');for(let y=132;y<137;y+=2)R(20,y,14,1,'#2b2d31');
+    // цифровой щиток — узкий экран
+    rr(cx-44,100,88,26,4,'#08090b');rr(cx-42,102,84,22,3,'#060c14');
+    // большой центральный экран
+    const scW=Math.min(120,W*0.3),scX=sx-scW/2,scY=94,scH=34;rr(scX-3,scY-3,scW+6,scH+6,4,'#0a0b0d');c.fillStyle=vg(scY,scY+scH,'#1f2a3c','#121926');c.fillRect(scX,scY,scW,scH);
+    rr(scX+3,scY+3,scW*0.2,scH-6,3,'#2a3346');circ(scX+3+scW*0.1,scY+12,5,'#3c4660');R(scX+3+scW*0.1-1,scY+10,3,4,'#e9eef5');for(let i=0;i<3;i++)R(scX+6,scY+20+i*3,scW*0.14,1,'#9fb3c6');
+    const cols=['#c0392b','#2f4a7a','#3a4150','#2f4a7a','#1f6f4a','#3a4150','#2b5aa8','#3a4150'];const tw=(scW*0.76-12)/4;
+    for(let i=0;i<8;i++){const tx=scX+scW*0.23+(i%4)*(tw+3),ty=scY+4+Math.floor(i/4)*14;rr(tx,ty,tw,12,2,cols[i]);R(tx+tw/2-2,ty+3,4,4,'rgba(255,255,255,.85)')}
+    // два шестигранных дефлектора в хроме
+    for(const vx of[sx-50,sx+4]){hex(vx,136,46,14,P.chrome);hex(vx+2,137.5,42,11,'#0b0c0e');for(let y=139;y<147;y+=2)R(vx+7,y,32,1,'#2a2c31');R(vx+22,138,1,10,'#45484e')}
+    // сенсорная полоса климата
+    rr(sx-52,156,104,12,3,'#0f1012');R(sx-50,157,100,1,P.chrome2);for(let i=0;i<8;i++){R(sx-44+i*12,160,7,4,'#2c2e33');R(sx-42+i*12,161,3,1,i===4?'#e33':'#9aa2ab')}
+    // консоль: хромовая П-рамка и «джойстик» АКПП
+    c.strokeStyle=P.chrome;c.lineWidth=2;c.beginPath();c.moveTo(sx-30,H);c.lineTo(sx-30,182);c.quadraticCurveTo(sx-30,174,sx-22,174);c.lineTo(sx+22,174);c.quadraticCurveTo(sx+30,174,sx+30,182);c.lineTo(sx+30,H);c.stroke();
+    rr(sx-28,176,56,H-176,4,'#0e0f11');R(sx-20,178,12,4,'#05070a');txt('00',sx-14,178,5,'#e8eef4');
+    rr(sx-8,186,16,30,4,'#1c1d20');c.strokeStyle=P.chrome2;c.lineWidth=1;c.strokeRect(sx-8.5,188.5,17,27);rr(sx-6,182,12,10,3,'#2b2c30');R(sx-4,183,8,1,'#5d6066');
+    for(let i=0;i<3;i++){R(sx-24,190+i*7,8,4,'#2c2e33');R(sx+16,190+i*7,8,4,'#2c2e33')}
+  }
+  if(D){
+    // щиток: спидометр цифрами, дуга оборотов
+    const rv=st.rpm/7000;c.strokeStyle='#16303c';c.lineWidth=3;c.beginPath();c.arc(cx-24,114,8,Math.PI*0.75,Math.PI*2.25);c.stroke();
+    c.strokeStyle='#2fd0d6';c.beginPath();c.arc(cx-24,114,8,Math.PI*0.75,Math.PI*(0.75+1.5*Math.max(0,Math.min(1,rv))));c.stroke();
+    txt('D'+st.gear,cx-24,110,6,'#9fe8ee');txt(String(Math.round(st.kmh)),cx+6,104,12,'#f0f8ff','center','"Press Start 2P",monospace');txt('км/ч',cx+6,118,6,'#7fa6b8');
+    R(cx+26,108,12,3,'#16303c');R(cx+26,108,12*(st.nitro==null?1:st.nitro/100),3,st.nitroOn?'#9fe0ff':'#2f8cff');R(cx+26,114,12,1,'#2fd0d6');R(cx+26,117,8,1,'#2fd0d6');
+    // руль: горизонтальные спицы с кнопками, хромовая петля снизу
+    const wy=194,Rr=66;c.save();c.translate(cx,wy);c.rotate((st.steer||0)*1.2);
+    polyO(P.leather,-Rr+5,-10,-18,-13,-18,8,-Rr+5,8);polyO(P.leather,Rr-5,-10,18,-13,18,8,Rr-5,8);
+    for(const s of[-1,1]){rr(s<0?-46:28,-12,18,16,4,'#222428');for(const[bx,by]of[[0,0],[8,0],[0,8],[8,8]]){R((s<0?-44:30)+bx,-10+by,6,5,'#3a3d43');R((s<0?-43:31)+bx,-9+by,4,1,'#6b6e75')}}
+    c.strokeStyle=P.chrome;c.lineWidth=4;c.beginPath();c.moveTo(-15,8);c.lineTo(-12,Rr-14);c.quadraticCurveTo(0,Rr-6,12,Rr-14);c.lineTo(15,8);c.stroke();c.strokeStyle='#5a5f66';c.lineWidth=1;c.stroke();
+    rr(-19,-17,38,28,8,'#1c1d20');rr(-10,-7,20,6,2,'#9aa0a7');R(-9,-6,18,1,'#e4e8ec');
+    rim(Rr,P.leather,'#3a3b40','#55565c');c.restore();
+  }
+  return mir;
+}
+
+/* ======================= Opel Astra H ======================= */
+function cabOpel(c,W,H,st,L){
+  const k=cabKit(c),{polyO,R,poly,rr,circ,ring,txt,vg,face,needle,vent,rim}=k;const S=L!=='d',D=L!=='s';
+  const cx=Math.round(W*0.37),sx=Math.round(W*0.665),mx=Math.round(W*0.68);
+  const P={silver:'#b9bdc2',silver2:'#8f9398',leather:'#1b1b1d'};
+  let mir={x:mx-30,y:13,w:60,h:14};
+  if(S){
+    k.roofPillars('#c3c3bf','#b0b0ab','#94948f',W);
+    // зеркало в рамке старого образца
+    R(mx-2,4,4,8,'#202124');rr(mx-33,10,66,20,3,'#202124');c.fillStyle=vg(13,27,'#c9d9e6','#8e9aa3');c.fillRect(mx-30,13,60,14);R(mx-30,22,60,5,'#7a7f84');mir={x:mx-30,y:13,w:60,h:14};
+    // серая торпеда с козырьком
+    c.fillStyle=vg(104,134,'#5d5f63','#4c4e52');c.beginPath();c.moveTo(0,130);c.quadraticCurveTo(W*0.42,104,W,118);c.lineTo(W,H);c.lineTo(0,H);c.closePath();c.fill();
+    c.strokeStyle='rgba(255,255,255,.14)';c.lineWidth=1;c.beginPath();c.moveTo(0,130);c.quadraticCurveTo(W*0.42,104,W,118);c.stroke();
+    c.fillStyle=vg(138,H,'#3a3c40','#2a2b2e');c.fillRect(0,138,W,H-138);
+    R(cx+44,137,W-cx-44,3,P.silver);R(cx+44,140,W-cx-44,1,'#6f7378');R(0,140,cx-50,3,P.silver);
+    // квадратные дефлекторы по краям
+    for(const vx of[14,W-46]){rr(vx-2,120,34,16,2,P.silver);rr(vx,122,30,12,1,'#111214');for(let y=124;y<133;y+=2)R(vx+2,y,26,1,'#2e3034')}
+    poly('#45474b',0,132,40,138,32,H,0,H);R(0,156,36,2,P.silver2);rr(6,170,22,12,3,'#2a2b2e');for(let i=0;i<3;i++)circ(11+i*6,176,2,'#4a4c50');
+    // козырёк с оранжевым дисплеем, аварийка
+    poly('#3a3c40',sx-38,128,sx-30,106,sx+30,106,sx+38,128);rr(sx-26,110,52,13,2,'#140700');R(sx-24,112,48,9,'#ff7d1f');txt('RUS HIT',sx,112,7,'#4a1a00');
+    poly('#d6282a',sx,128,sx+5,135,sx-5,135);poly('#fff',sx,130,sx+2.6,134,sx-2.6,134);
+    // центральные дефлекторы
+    rr(sx-36,142,72,10,2,'#1b1c1e');for(let y=144;y<151;y+=2)R(sx-33,y,66,1,'#3e4044');R(sx-0.5,143,1,8,'#55575b');
+    // магнитола с кнопками и большой крутилкой
+    rr(sx-34,155,68,30,3,'#0c0c0e');R(sx-30,158,60,1.5,'#2e3034');for(let i=0;i<6;i++)for(let j=0;j<2;j++)rr(sx-29+i*10,162+j*6,8,4,1,'#4c4e52');
+    circ(sx,180,6,'#9aa0a6');circ(sx,180,4.5,'#2a2b2e');circ(sx-22,180,3,'#4c4e52');circ(sx+22,180,3,'#4c4e52');
+    // климат: три ручки
+    rr(sx-34,188,68,14,3,'#18191b');for(const kx of[sx-22,sx,sx+22]){circ(kx,195,5.5,'#55585d');circ(kx,195,4,'#2a2b2e');R(kx-0.5,190,1,3,'#ddd')}
+    // механика: чехол и серебристая рукоять
+    poly('#1b1b1d',sx-14,H,sx-9,206,sx+9,206,sx+14,H);for(let y=208;y<H;y+=3)R(sx-8,y,16,1,'#2a2a2d');R(sx-2,198,4,10,'#2a2a2d');circ(sx,198,6,'#c3c8cd');circ(sx-1.5,196.5,2.5,'#fff');
+    // три колодца приборов
+    c.fillStyle='#45474b';c.beginPath();c.ellipse(cx,126,56,24,0,Math.PI,0);c.fill();
+    for(const[gx,gy,gr]of[[cx-27,124,16],[cx+27,124,16],[cx,114,9]])circ(gx,gy,gr+3,'#18191b');
+    face(cx-27,124,16,8,true,'#a8adb3','#5d6066','#0b0b0b','#ff6a2a');face(cx+27,124,16,12,false,'#a8adb3','#5d6066','#0b0b0b','#ff6a2a');face(cx,114,9,4,false,'#a8adb3','#5d6066','#0b0b0b','#ff6a2a');
+    rr(cx-9,126,18,8,1,'#1a0800');
+  }
+  if(D){
+    needle(cx-27,124,16,st.rpm/7000,'#ff3b1a');needle(cx+27,124,16,st.kmh/240,'#ff3b1a');needle(cx,114,9,0.55,'#ff3b1a');txt(String(Math.round(st.kmh)),cx,126,7,'#ff7d1f');
+    // руль: три спицы, серебристая нижняя «V», круглая ступица
+    const wy=194,Rr=66;c.save();c.translate(cx,wy);c.rotate((st.steer||0)*1.2);
+    polyO(P.leather,-Rr+5,-4,-18,-8,-18,10,-Rr+6,12);polyO(P.leather,Rr-5,-4,18,-8,18,10,Rr-6,12);
+    rr(-40,-5,9,8,2,'#2c2d30');rr(31,-5,9,8,2,'#2c2d30');
+    poly(P.silver,-16,10,16,10,11,Rr-6,-11,Rr-6);poly(P.silver2,-11,Rr-9,11,Rr-9,11,Rr-6,-11,Rr-6);
+    circ(0,-1,19,'#2a2b2e');circ(0,-1,17,'#333438');c.strokeStyle='#c9ced5';c.lineWidth=1.6;c.beginPath();c.arc(0,-1,6.5,0,Math.PI*2);c.stroke();
+    rim(Rr,P.leather,'#3e3f44','#58595f');c.restore();
+  }
+  return mir;
+}
+const CABS={m6:cabM6,cx9:cabCx9,haval:cabHaval,opel:cabOpel};
+
+return{drawSide,drawRear,pixelize,sideTraced,HAVAL_SIDE,OPEL_SIDE,CX9_SIDE,rearHaval,rearOpel,rearCx9,CABS};
+})();
 /* ===================== спрайты ===================== */
 function mk(w,h,fn){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
   const d={x,w,h,
@@ -389,7 +924,10 @@ function buildSprites(){
   def('geese',mk(48,24,({o,p,r})=>{for(const[gx,gy]of[[10,14],[24,12],[38,15]]){o(gx,gy+3,7,4,'#f4f4f0');o(gx-1,gy+4,5,2,'#d9d9d2');r(gx+4,gy-6,2,8,'#f4f4f0');o(gx+5,gy-6,2.5,2,'#f4f4f0');p([gx+7,gy-7,gx+10,gy-6,gx+7,gy-5],'#f08a1a');r(gx-2,gy+7,1,3,'#f08a1a');r(gx+2,gy+7,1,3,'#f08a1a')}}),1500);
   def('goat',mk(32,26,({o,r,p})=>{o(16,13,10,6,'#f2f0ea');r(9,17,2,8,'#e2ded4');r(21,17,2,8,'#e2ded4');o(27,8,4,4,'#f2f0ea');p([25,5,23,0,26,4],'#9a8a70');p([28,5,30,0,29,5],'#9a8a70');r(28,11,2,3,'#d8d2c4');o(28,7,0.8,0.8,'#222')}),1200);
   /* --- машины --- */
-  for(const c of CARS){const P=MODELS[c.id];c.side=mk(P.w,P.h,d=>sideCar(d,P,c));c.rear=mk(64,{haval:50,cx9:44,m6:36,opel:36}[c.id],d=>rearCar(d,c.id,c));}
+  {const art=(w,h,f)=>{const cv=document.createElement('canvas');cv.width=w;cv.height=h;f(cv.getContext('2d'));return ART.pixelize(cv,true)};
+    const SPEC={haval:[[240,96,x=>ART.sideTraced(x,ART.HAVAL_SIDE)],[128,104,ART.rearHaval]],opel:[[240,80,x=>ART.sideTraced(x,ART.OPEL_SIDE)],[128,92,ART.rearOpel]],
+      cx9:[[240,90,x=>ART.sideTraced(x,ART.CX9_SIDE)],[128,100,ART.rearCx9]],m6:[[240,80,ART.drawSide],[128,96,ART.drawRear]]};
+    for(const c of CARS){const[sd,rr]=SPEC[c.id];c.side=art(...sd);c.rear=art(...rr)}}
   for(const t of TRAFFIC){t.rear=mk(48,t.tall?36:30,d=>drawRear(d,t.tall?'suv':'sedan',t,t.tail));}
   const parkCols=[['#c9ccd0','#e6e9ec','#8e9297'],['#2a2d33','#4d525b','#151619'],['#7d8b99','#a2b0bd','#56616c'],['#c0392b','#e05a4a','#7d2219'],['#e9ebee','#ffffff','#b0b5ba'],['#3b5d8f','#5f82b5','#25416a']];
   const types=['sedan','sedan2','suv2','lada','sedan','suv'];
@@ -856,139 +1394,20 @@ function drawMud(){for(const m of MUD){if(m.k>mud)continue;g.globalAlpha=0.8;cir
 function drawFog(){const gr=g.createRadialGradient(W*0.12,DASH,4,W*0.12,DASH,W*0.32);gr.addColorStop(0,'rgba(235,240,245,'+fogA+')');gr.addColorStop(1,'rgba(235,240,245,0)');g.fillStyle=gr;g.fillRect(0,0,W,DASH+6);const g2=g.createRadialGradient(W*0.88,DASH,4,W*0.88,DASH,W*0.3);g2.addColorStop(0,'rgba(235,240,245,'+fogA+')');g2.addColorStop(1,'rgba(235,240,245,0)');g.fillStyle=g2;g.fillRect(0,0,W,DASH+6)}
 
 /* ===================== салон ===================== */
-function gauge(x,y,r,v,ring,face,tick,needle,n,red){circ(x,y,r+1.6,ring);circ(x,y,r,face);g.lineWidth=1;for(let i=0;i<=n;i++){const a=Math.PI*0.75+i/n*Math.PI*1.5;g.strokeStyle=(red&&i>=n-1)?'#ff3030':tick;g.beginPath();g.moveTo(x+Math.cos(a)*(r-3.2),y+Math.sin(a)*(r-3.2));g.lineTo(x+Math.cos(a)*(r-1),y+Math.sin(a)*(r-1));g.stroke()}
-  const a=Math.PI*0.75+clamp(v,0,1)*Math.PI*1.5;g.strokeStyle=needle;g.lineWidth=1.6;g.beginPath();g.moveTo(x-Math.cos(a)*2,y-Math.sin(a)*2);g.lineTo(x+Math.cos(a)*(r-2),y+Math.sin(a)*(r-2));g.stroke();circ(x,y,2,'#1a1a1a');circ(x,y,0.8,'#777')}
-function vgrad(y1,y2,c1,c2){const gr=g.createLinearGradient(0,y1,0,y2);gr.addColorStop(0,c1);gr.addColorStop(1,c2);return gr}
-function vent(x,y,w,h,ring,rad){rrect(x-1.5,y-1.5,w+3,h+3,rad+1,ring);rrect(x,y,w,h,rad,'#0c0d0f');for(let l=1;l<h-1;l+=2)R(x+2,y+l,w-4,1,'#25272b');R(x+w/2-0.5,y+1,1,h-2,'#3a3c40')}
+const cabCache={};
 function drawCockpit(ci,st){
-  const car=CARS[ci],K=car.cab,id=car.id;const cx=Math.round(W*0.4),y0=DASH;
-  // левое боковое стекло и наружное зеркало
-  const pl0=Math.round(W*0.075),pl1=Math.round(W*0.135);
-  poly('rgba(25,35,45,.22)',0,0,pl0,0,12,y0,0,y0);
-  const mw=Math.round(W*0.07);rrect(1,y0-36,mw+3,20,5,car.body);rrect(3,y0-34,mw-1,15,4,'#a7bccb');R(3,y0-24,mw-1,5,'#7d858b');R(3,y0-26,mw-1,1,'#cfdde6');R(mw+2,y0-28,5,6,car.body);
-  // стойки и крыша
-  poly(K.pillar,pl0,0,pl1,0,26,y0+6,8,y0+6);poly('rgba(255,255,255,.07)',pl1-3,0,pl1,0,26,y0+6,24,y0+6);
-  poly(K.pillar,W-Math.round(W*0.05),0,W,0,W,y0+6,W-4,y0+6);
-  g.fillStyle=K.roof;g.beginPath();g.moveTo(0,0);g.lineTo(W,0);g.lineTo(W,8);g.quadraticCurveTo(W/2,15,0,8);g.closePath();g.fill();
-  poly(K.visor,pl1,6,cx+18,7,cx+16,12,pl1+2,11);poly(K.visor,W*0.67,7,W-24,5,W-26,10,W*0.68,12);
-  // салонное зеркало
-  const mx=Math.round(W*0.6);R(mx-1,3,3,7,'#141416');rrect(mx-25,9,50,15,5,'#141416');
-  g.fillStyle=vgrad(11,22,'#a9cbe6','#7f8b92');g.fillRect(mx-23,11,46,11);R(mx-23,18,46,4,'#62676c');
-  for(const b of bots){const dz=position-b.z;if(dz>1500&&dz<14000){const k=1-dz/14000;const bw=4+k*13;const bx=mx-(b.x-playerX)*10*k-bw/2;R(bx,20-bw*0.55,bw,bw*0.55,CARS[b.ci].body);R(bx+1,20-bw*0.55+1,bw-2,1,'#e33')}}
-  if(id==='haval')dashHaval(K,cx,y0,st);else if(id==='opel')dashOpel(K,cx,y0,st);else dashMazda(K,cx,y0,st,id==='cx9');
-  drawWheel(K,cx,y0+74,61,st.steer*1.25);
-  if(tukT>0)txt('тук-тук',Math.round(W*0.7),y0-24,8,'#ffd56a','center',PF,'#000');
-}
-function dashTop(c1,c2,y0,lift){g.fillStyle=vgrad(y0-lift,H,c1,c2);g.beginPath();g.moveTo(0,y0+7);g.quadraticCurveTo(W*0.45,y0-lift,W,y0+4);g.lineTo(W,H);g.lineTo(0,H);g.closePath();g.fill();
-  g.strokeStyle='rgba(255,255,255,.09)';g.lineWidth=1;g.beginPath();g.moveTo(0,y0+7);g.quadraticCurveTo(W*0.45,y0-lift,W,y0+4);g.stroke()}
-/* Haval H5: чёрная торпеда, узкий цифровой щиток, большой планшет, вентиляторы в хроме, U-хром на руле */
-function dashHaval(K,cx,y0,st){
-  dashTop('#25272b','#0e0f11',y0,6);
-  poly('#17181b',0,y0+14,W*0.12,y0+20,W*0.1,H,0,H);g.strokeStyle=K.accent;g.lineWidth=1.5;g.beginPath();g.moveTo(0,y0+30);g.quadraticCurveTo(W*0.06,y0+22,W*0.12,y0+21);g.stroke();
-  rrect(5,y0+42,W*0.07,9,2,'#0a0a0b');for(let i=0;i<3;i++)R(7+i*6,y0+44,4,4,'#34363b');
-  vent(W*0.115,y0+14,W*0.05,9,K.accent,3);
-  // щиток
-  const cw=80,cx0=cx-34;rrect(cx0-2,y0-17,cw+4,25,4,'#08090b');rrect(cx0,y0-15,cw,21,3,'#050a12');
-  const rv=st.rpm/7000;g.strokeStyle='#16303c';g.lineWidth=3;g.beginPath();g.arc(cx0+16,y0-2,9,Math.PI*0.75,Math.PI*2.25);g.stroke();g.strokeStyle='#2fd0d6';g.beginPath();g.arc(cx0+16,y0-2,9,Math.PI*0.75,Math.PI*(0.75+1.5*clamp(rv,0,1)));g.stroke();
-  txt('D'+st.gear,cx0+16,y0-6,6,'#9fe8ee','center',PF);
-  txt(String(Math.round(st.kmh)),cx0+44,y0-12,12,'#f0f8ff','center',PX);txt('км/ч',cx0+44,y0+1,6,'#7fa6b8','center',PF);
-  R(cx0+62,y0-9,12,3,'#16303c');R(cx0+62,y0-9,12*st.nitro/100,3,st.nitroOn?'#9fe0ff':'#2f8cff');R(cx0+62,y0-3,12,1,'#2fd0d6');R(cx0+62,y0+1,8,1,'#2fd0d6');
-  // планшет
-  const sx=Math.round(W*0.6),sw=Math.round(W*0.29),sy=y0-24;rrect(sx-3,sy-3,sw+6,35,5,'#0a0b0d');g.fillStyle=vgrad(sy,sy+29,'#1d2738','#111722');g.fillRect(sx,sy,sw,29);
-  rrect(sx+3,sy+3,sw*0.18,23,3,'#2a3346');circ(sx+3+sw*0.09,sy+10,4,'#3c4660');R(sx+3+sw*0.09-1,sy+8,3,4,'#e9eef5');
-  const cols=['#c0392b','#2f4a7a','#3a4150','#2f4a7a','#1f6f4a','#3a4150','#2b5aa8','#3a4150'];const tw=(sw*0.78-12)/4;
-  for(let i=0;i<8;i++){const tx=sx+sw*0.21+(i%4)*(tw+3),ty=sy+3+Math.floor(i/4)*12;rrect(tx,ty,tw,10,2,cols[i]);R(tx+tw/2-2,ty+2,4,4,'rgba(255,255,255,.8)')}
-  // вентиляторы-«шестигранники»
-  for(const vx of[W*0.615,W*0.765]){const vw=W*0.12;g.fillStyle=K.accent;g.beginPath();g.moveTo(vx,y0+22);g.lineTo(vx+5,y0+16);g.lineTo(vx+vw-5,y0+16);g.lineTo(vx+vw,y0+22);g.lineTo(vx+vw-5,y0+28);g.lineTo(vx+5,y0+28);g.closePath();g.fill();
-    g.fillStyle='#0b0c0e';g.beginPath();g.moveTo(vx+2,y0+22);g.lineTo(vx+6,y0+17.5);g.lineTo(vx+vw-6,y0+17.5);g.lineTo(vx+vw-2,y0+22);g.lineTo(vx+vw-6,y0+26.5);g.lineTo(vx+6,y0+26.5);g.closePath();g.fill();
-    for(let l=0;l<4;l++)R(vx+5,y0+19+l*2,vw-10,1,'#2a2c31');R(vx+vw/2-0.5,y0+18,1,8,'#45484e')}
-  rrect(W*0.61,y0+33,W*0.27,10,3,'#141518');R(W*0.62,y0+34,W*0.25,1,K.accent);for(let i=0;i<7;i++)R(W*0.625+i*W*0.035,y0+37,W*0.022,3,'#2c2e33');R(W*0.745,y0+37,2,2,'#e33');
-  rrect(W*0.67,H-30,W*0.1,30,6,'#111214');g.strokeStyle=K.accent;g.lineWidth=1.5;g.strokeRect(W*0.68,H-26,W*0.08,26);rrect(W*0.705,H-24,W*0.03,14,3,'#060607');R(W*0.705,H-24,W*0.03,3,K.accent);
-}
-/* Opel Astra H: серо-чёрная торпеда с серебряной полосой, три колодца, оранжевый дисплей, магнитола */
-function dashOpel(K,cx,y0,st){
-  dashTop('#55575b','#45474b',y0,8);
-  g.fillStyle=vgrad(y0+24,H,'#2f3034','#222326');g.fillRect(0,y0+24,W,H-y0-24);
-  R(0,y0+23,W,2,'#b7bbc0');R(0,y0+25,W,1,'#6a6d71');
-  poly('#3a3c40',0,y0+18,W*0.1,y0+22,W*0.085,H,0,H);
-  vent(W*0.1,y0+9,W*0.065,11,'#b7bbc0',2);vent(W-W*0.1,y0+9,W*0.065,11,'#b7bbc0',2);
-  rrect(W*0.105,y0+28,W*0.05,9,2,'#2a2b2e');for(let i=0;i<3;i++)circ(W*0.115+i*6,y0+32,2,'#4a4c50');
-  // колодцы приборов
-  g.fillStyle='#3f4145';g.beginPath();g.ellipse(cx,y0+3,50,20,0,Math.PI,0);g.fill();
-  for(const[gx,gy,gr]of[[cx-25,y0+1,14],[cx+25,y0+1,14],[cx,y0-5,8]])circ(gx,gy,gr+3,'#18191b');
-  gauge(cx-25,y0+1,14,st.rpm/7000,'#a3a8ae','#0b0b0b','#ff6a2a','#ff3b1a',8,true);
-  gauge(cx+25,y0+1,14,st.kmh/240,'#a3a8ae','#0b0b0b','#ff6a2a','#ff3b1a',12);
-  gauge(cx,y0-5,8,0.55,'#a3a8ae','#0b0b0b','#ff6a2a','#ff3b1a',4);
-  rrect(cx-8,y0+6,16,7,1,'#1a0800');txt(String(Math.round(st.kmh)),cx,y0+6,7,'#ff7d1f','center',PF);
-  // козырёк с оранжевым дисплеем
-  const vx=W*0.6,vw=W*0.19;poly('#36383c',vx-4,y0+8,vx+2,y0-12,vx+vw-2,y0-12,vx+vw+4,y0+8);rrect(vx+5,y0-8,vw-10,11,2,'#120600');R(vx+6,y0-7,vw-12,9,'#ff7d1f');
-  txt('RUS_HIT',vx+vw/2,y0-7,7,'#4a1a00','center',PF);
-  poly('#d6282a',vx+vw/2,y0+10,vx+vw/2+5,y0+17,vx+vw/2-5,y0+17);poly('#fff',vx+vw/2,y0+12,vx+vw/2+2.6,y0+16,vx+vw/2-2.6,y0+16);
-  rrect(vx,y0+19,vw,9,2,'#1b1c1e');for(let l=0;l<4;l++)R(vx+2,y0+20+l*2,vw-4,1,'#3e4044');
-  rrect(vx+2,y0+30,vw-4,H-y0-30,3,'#0c0c0e');R(vx+6,y0+33,vw-12,1.5,'#2e3034');
-  for(let i=0;i<6;i++)for(let j=0;j<2;j++)rrect(vx+5+i*(vw-10)/6,y0+37+j*6,(vw-10)/6-2,4,1,'#4c4e52');circ(vx+vw/2,y0+57,6,'#9aa0a6');circ(vx+vw/2,y0+57,4.5,'#2a2b2e');circ(vx+vw*0.2,y0+57,3,'#4c4e52');circ(vx+vw*0.8,y0+57,3,'#4c4e52');
-  R(W*0.84,y0+40,W*0.14,1,'#1a1b1d');
-  // механика
-  poly('#1b1b1d',W*0.8,H,W*0.81,H-14,W*0.85,H-14,W*0.86,H);circ(W*0.83,H-18,6,'#c3c8cd');circ(W*0.825,H-19.5,2.5,'#fff');
-}
-/* Mazda 6 / CX-9: чёрная торпеда, три колодца в хроме, отдельный экран сверху, хромовая линия, климат с двумя ручками */
-function dashMazda(K,cx,y0,st,cx9){
-  dashTop(cx9?'#2a2b2f':'#232224','#141315',y0,7);
-  if(!cx9){g.fillStyle=K.insert;g.fillRect(cx+50,y0+24,W-cx-50,10);for(let i=cx+52;i<W;i+=4)R(i,y0+24.5,2,0.6,'#6b3c42');for(let i=cx+52;i<W;i+=4)R(i,y0+33,2,0.6,'#6b3c42')}
-  poly('#1b1a1c',0,y0+14,W*0.115,y0+19,W*0.1,H,0,H);if(!cx9)R(0,y0+30,W*0.105,6,K.insert);R(2,y0+29,W*0.1,1,K.accent);
-  vent(W*0.11,y0+12,W*0.055,9,K.accent,4);
-  // приборы под козырьком
-  g.fillStyle='#1c1c1f';g.beginPath();g.ellipse(cx,y0+4,52,21,0,Math.PI,0);g.fill();
-  gauge(cx-28,y0+2,12,st.rpm/7000,K.accent,'#0b0b0d','#ececec','#ff2a2a',8,true);
-  gauge(cx,y0,16,st.kmh/240,K.accent,'#0b0b0d','#ececec','#ff2a2a',12);
-  circ(cx+28,y0+2,13.6,K.accent);circ(cx+28,y0+2,12,'#0b0b0d');rrect(cx+20,y0-5,16,13,2,'#121b26');txt('D'+st.gear,cx+28,y0-4,7,'#e8eef4','center',PF);txt(String(Math.round(st.kmh)),cx+28,y0+2,6,'#9fd6ff','center',PF);
-  circ(cx+50,y0+10,4.5,K.accent);circ(cx+50,y0+10,3.4,'#141416');R(cx+48.5,y0+9,3,2,'#e33');
-  // отдельный экран
-  const tx=Math.round(W*0.64),tw=Math.round(W*0.17);poly('#151517',tx+tw*0.3,y0-2,tx+tw*0.7,y0-2,tx+tw*0.62,y0+4,tx+tw*0.38,y0+4);rrect(tx,y0-28,tw,25,3,'#0a0a0b');g.fillStyle=vgrad(y0-26,y0-5,'#1c2533','#121821');g.fillRect(tx+2,y0-26,tw-4,21);
-  for(let l=0;l<4;l++)R(tx+6,y0-22+l*4,tw*(0.3+((l*37)%5)/10),1.3,'#e8eef4');R(tx+4,y0-9,tw-8,2.5,cx9?'#c0392b':'#e6732a');circ(tx+tw-10,y0-18,4,'#2a3446');
-  // хром и вентиляторы
-  const vx=Math.round(W*0.6),vw=Math.round(W*0.27);
-  if(cx9){g.strokeStyle=K.accent;g.lineWidth=3;g.beginPath();g.moveTo(cx+30,y0+31);g.quadraticCurveTo(W*0.6,y0+12,vx+vw/2,y0+31);g.quadraticCurveTo(vx+vw*0.8,y0+12,W,y0+18);g.stroke();g.lineWidth=1;g.strokeStyle='rgba(255,255,255,.6)';g.beginPath();g.moveTo(cx+31,y0+30);g.quadraticCurveTo(W*0.6,y0+11,vx+vw/2,y0+30);g.stroke()}
-  else{R(cx+46,y0+15,W-cx-46,2,K.accent);R(cx+46,y0+17,W-cx-46,1,'#555')}
-  vent(vx+2,y0+19,vw/2-8,10,K.accent,2);vent(vx+vw/2+6,y0+19,vw/2-8,10,K.accent,2);
-  rrect(vx+vw/2-4,y0+20,8,8,1,'#1a1a1c');poly('#d6282a',vx+vw/2,y0+21.5,vx+vw/2+3,y0+26.5,vx+vw/2-3,y0+26.5);
-  // климат
-  rrect(vx,y0+35,vw,15,3,'#111113');R(vx+3,y0+36,vw-6,1,K.accent);
-  for(const kx of[vx+10,vx+vw-10]){circ(kx,y0+43,6,K.accent);circ(kx,y0+43,4.6,'#1e1e21');R(kx-0.5,y0+38.5,1,3,'#ddd')}
-  rrect(vx+20,y0+38,vw-40,10,2,'#05070a');txt('22.0',vx+vw*0.36,y0+39,7,'#ffb347','center',PF);txt('22.0',vx+vw*0.64,y0+39,7,'#ffb347','center',PF);
-  if(cx9){g.fillStyle=vgrad(H-34,H,'#d8d5ce','#b8b4ab');g.beginPath();g.moveTo(W*0.9,H);g.quadraticCurveTo(W*0.89,H-30,W,H-34);g.lineTo(W,H);g.closePath();g.fill()}
-  // автомат
-  rrect(W*0.73,H-30,W*0.09,30,5,'#151517');g.strokeStyle=K.accent;g.lineWidth=1;g.strokeRect(W*0.735,H-27,W*0.08,27);
-  rrect(W*0.762,H-36,10,20,4,'#1d1d20');R(W*0.762+1,H-36,8,3,K.accent);
-}
-function drawWheel(K,cx,cy,R0,ang){
-  g.save();g.translate(cx,cy);g.rotate(ang);
-  const L=K.leather,A=K.accent;
-  if(K.wheel==='haval'){
-    poly(L,-R0+5,-8,-16,-11,-16,7,-R0+5,7);poly(L,R0-5,-8,16,-11,16,7,R0-5,7);
-    rrect(-38,-8,13,12,3,'#222428');rrect(25,-8,13,12,3,'#222428');for(const sx of[-36,-31,27,32])for(const sy of[-6,-1])R(sx,sy,4,3,'#3a3d43');
-    g.strokeStyle=A;g.lineWidth=3.5;g.beginPath();g.moveTo(-15,6);g.lineTo(-12,R0-9);g.quadraticCurveTo(0,R0-3,12,R0-9);g.lineTo(15,6);g.stroke();
-    g.strokeStyle='#5a5f66';g.lineWidth=1;g.stroke();
-    rrect(-17,-15,34,25,7,K.hub);rrect(-9,-6,18,6,2,'#9aa0a7');R(-8,-5,16,1,'#e4e8ec');
-  }else if(K.wheel==='opel'){
-    poly(L,-R0+5,-3,-17,-7,-17,9,-R0+6,10);poly(L,R0-5,-3,17,-7,17,9,R0-6,10);
-    rrect(-36,-4,8,7,2,'#2c2d30');rrect(28,-4,8,7,2,'#2c2d30');
-    poly(A,-16,9,16,9,11,R0-4,-11,R0-4);poly('#8f949a',-11,R0-6,11,R0-6,11,R0-4,-11,R0-4);
-    circ(0,-1,17,K.hub);circ(0,-1,15,'#2e2f32');g.strokeStyle='#c9ced5';g.lineWidth=1.6;g.beginPath();g.arc(0,-1,6,0,Math.PI*2);g.stroke();R(-5,-1.5,10,1.4,'#c9ced5');
-  }else{
-    poly(L,-R0+5,-6,-16,-9,-16,8,-R0+5,8);poly(L,R0-5,-6,16,-9,16,8,R0-5,8);
-    poly(A,-R0+6,6,-17,6,-17,8.5,-R0+6,9.5);poly(A,R0-6,6,17,6,17,8.5,R0-6,9.5);
-    rrect(-37,-6,10,10,2,'#25262a');rrect(27,-6,10,10,2,'#25262a');for(const sx of[-35,-31,29,33])R(sx,-4,2,6,'#44464c');
-    poly(A,-12,9,-6,9,-2,R0-5,-8,R0-5);poly(A,12,9,6,9,2,R0-5,8,R0-5);
-    rrect(-18,-15,36,26,9,K.hub);g.strokeStyle='#c9ced5';g.lineWidth=1.5;g.beginPath();g.ellipse(0,-2,8,5.5,0,0,Math.PI*2);g.stroke();
-  }
-  g.strokeStyle=L;g.lineWidth=11;g.beginPath();g.arc(0,0,R0-5.5,0,Math.PI*2);g.stroke();
-  g.strokeStyle=K.leatherHi;g.lineWidth=2;g.beginPath();g.arc(0,0,R0-8,Math.PI*1.2,Math.PI*1.8);g.stroke();
-  g.strokeStyle='rgba(255,255,255,.12)';g.lineWidth=1;g.beginPath();g.arc(0,0,R0-3,Math.PI*1.25,Math.PI*1.75);g.stroke();
-  g.strokeStyle='rgba(0,0,0,.4)';g.lineWidth=1;g.beginPath();g.arc(0,0,R0,Math.PI*1.1,Math.PI*1.9);g.stroke();
+  const id=CARS[ci].id,key=id+'_'+W;let e=cabCache[key];
+  if(!e){const cv=document.createElement('canvas');cv.width=W;cv.height=H;const lc=cv.getContext('2d');const mir=ART.CABS[id](lc,W,H,null,'s');
+    const im=lc.getImageData(0,0,W,H),d=im.data;for(let k=3;k<d.length;k+=4)d[k]=d[k]<110?0:255;lc.putImageData(im,0,0);e=cabCache[key]={cv,mir}}
+  g.drawImage(e.cv,0,0);
+  // догоняющие в салонном зеркале
+  const m=e.mir;g.save();g.beginPath();g.rect(m.x,m.y,m.w,m.h);g.clip();
+  for(const b of bots){const dz=position-b.z;if(dz>1500&&dz<14000){const k=1-dz/14000;const bw=5+k*16;const bx=m.x+m.w/2-(b.x-playerX)*12*k-bw/2;const by=m.y+m.h-2-bw*0.55;
+    R(bx,by,bw,bw*0.55,CARS[b.ci].body);R(bx+1,by+1,bw-2,Math.max(1,bw*0.12),'#e33')}}
   g.restore();
+  ART.CABS[id](g,W,H,st,'d');
+  if(tukT>0)txt('тук-тук',Math.round(W*0.7),DASH-24,8,'#ffd56a','center',PF,'#000');
 }
-
 function drawHUD(){
   const n=1+bots.filter(b=>b.z>position+(finished?1e9:0)||(b.done&&finished&&b.time<finishTime)).length;
   const place=finished?1+bots.filter(b=>b.done&&b.time<finishTime).length:n;
@@ -1043,7 +1462,7 @@ function drawTitle(t){
   for(let y=hz;y<H;y++){const z=1/((y-hz+1)/(H-hz));const band=Math.floor(z*4+t*6)%2;R(0,y,W,1,band?'#5fa24a':'#6bb052')}
   for(let y=hz;y<H;y++){const k=(y-hz)/(H-hz);const hw=6+k*W*0.42;const z=1/(k+0.02);const band=Math.floor(z*2+t*6)%2;R(W/2-hw,y,hw*2,1,band?'#6a6c70':'#626468');if(Math.floor(z*1.2+t*6)%2)R(W/2-hw*0.025-1,y,hw*0.05+1,1,'#eee')}
   g.drawImage(S.house.img,Math.round(W/2-13),hz-24,26,21);
-  const order=[3,1,0,2];order.forEach((ci,k)=>{const c=CARS[ci];const zk=[0.25,0.38,0.55,0.8][k];const y=hz+(H-hz)*zk;const s=(0.6+zk*1.6)*0.72;const xoff=[-0.4,0.35,-0.25,0.15][k];const bob=Math.sin(t*9+k)*0.7;const w=c.rear.width*s,h=c.rear.height*s;g.drawImage(c.rear,Math.round(W/2+xoff*(6+zk*W*0.42)*1.2-w/2),Math.round(y-h+bob),Math.round(w),Math.round(h))});
+  const order=[3,1,0,2];order.forEach((ci,k)=>{const c=CARS[ci];const zk=[0.25,0.38,0.55,0.8][k];const y=hz+(H-hz)*zk;const s=(0.6+zk*1.6)*0.72;const xoff=[-0.4,0.35,-0.25,0.15][k];const bob=Math.sin(t*9+k)*0.7;const w=c.rear.width*s*0.5,h=c.rear.height*s*0.5;g.drawImage(c.rear,Math.round(W/2+xoff*(6+zk*W*0.42)*1.2-w/2),Math.round(y-h+bob),Math.round(w),Math.round(h))});
   g.font='30px '+TF;g.textAlign='center';g.textBaseline='top';
   const tg=g.createLinearGradient(0,14,0,78);tg.addColorStop(0,'#fff3a8');tg.addColorStop(0.5,'#ffb627');tg.addColorStop(1,'#ff5a1f');
   for(const[line,y]of[['АЙДА',12],['КАЙРАМАР',44]]){g.fillStyle='#2a0f3a';for(let d=1;d<=3;d++)g.fillText(line,W/2+d,y+d);g.lineWidth=4;g.strokeStyle='#2a0f3a';g.strokeText(line,W/2,y);g.fillStyle=tg;g.fillText(line,W/2,y)}
@@ -1115,7 +1534,7 @@ function drawFinish(t){
   const pw=Math.round(Math.min(196,W*0.46)),px=8,py=30;
   g.drawImage(S.shed.img,Math.round(W*0.6)-30,gy-26,28,28);g.drawImage(S.gazebo.img,pw+16,gy-38,Math.max(30,Math.round(W*0.6)-pw-44),44);
   for(let i=0;i<6;i++){R(W*0.5+i*14,gy+6+i*2,2,4,'#ddd');circ(W*0.5+i*14+1,gy+6+i*2,2,'#fff8c8')}
-  const C=CARS[carIdx];const fcw=170,fch=Math.round(fcw*C.side.height/C.side.width);g.drawImage(C.side,Math.round(W*0.52),H-24-fch,fcw,fch);
+  const C=CARS[carIdx];const fcw=190,fch=Math.round(fcw*C.side.height/C.side.width);g.drawImage(C.side,Math.round(W*0.52),H-24-fch,fcw,fch);
   if(C.id==='cx9'&&mud>0.05){g.globalAlpha=Math.min(0.85,mud+0.2);for(const m of MUD.slice(0,22))circ(W*0.52+15+m.x*120,H-56+m.y*18,2+m.s*0.3,'#5b4429');g.globalAlpha=1}
   const me=results.findIndex(r=>r.player)+1;
   banner(me===1?'ПРИЕХАЛИ НА ДАЧУ ПЕРВЫМИ!':'ПРИЕХАЛИ НА ДАЧУ!');
